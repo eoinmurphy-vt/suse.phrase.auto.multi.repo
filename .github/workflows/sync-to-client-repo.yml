@@ -1,4 +1,4 @@
-name: Sync Processed Files to Clients
+name: Sync Changes to External Repos
 
 on:
   push:

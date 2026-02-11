@@ -1,4 +1,4 @@
-name: Sync Changes from All External Repos
+name: Sync Changes from External Repos
 
 on:
   schedule:
