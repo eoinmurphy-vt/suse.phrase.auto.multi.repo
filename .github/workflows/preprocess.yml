@@ -41,27 +41,35 @@ jobs:
         id: changed
         env:
           # We use the variable here
-          DIR: ${{ vars.CONTENT_DIR || 'source' }} 
+          DIR: ${{ vars.CONTENT_DIR || 'source' }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          echo "Detecting changed AsciiDoc files in $DIR..."
+          echo "Triggered by: $EVENT_NAME"
+          echo "Scanning directory: $DIR"
 
-          if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
-            # Filter diff by the configured directory
-            git diff --name-only --diff-filter=AM HEAD^ HEAD -- "$DIR/" | grep '\.adoc$' > changed_files.txt || true
-          else
-            echo "Initial commit — using all .adoc files"
-            find "$DIR/" -type f -name "*.adoc" > changed_files.txt || true
-          fi
+          # 1. Find the last successful preprocess commit
+          # We look for the specific commit message used by this workflow
+          LAST_RUN_COMMIT=$(git log --grep="Auto-preprocessed changed AsciiDoc files" -n 1 --format="%H" || true)
 
-          if [ ! -s changed_files.txt ]; then
-            echo "No changed files detected; processing all .adoc"
+          if [ -z "$LAST_RUN_COMMIT" ]; then
+            echo "⚠ No previous run found (First Run). Scanning ALL files."
             find "$DIR/" -type f -name "*.adoc" > changed_files.txt
+          else
+            echo "✅ Last Preprocess Run found at: $LAST_RUN_COMMIT"
+            echo "   Calculating changes from $LAST_RUN_COMMIT to HEAD..."
+            
+            # 2. Diff against that commit
+            # --diff-filter=AM ensures we only catch Added or Modified files (ignoring Deletions)
+            git diff --name-only --diff-filter=AM "$LAST_RUN_COMMIT" HEAD -- "$DIR/" | grep '\.adoc$' > changed_files.txt || true
           fi
 
-          echo "Changed files:"
+          echo "--------------------------------"
+          echo "Files to process:"
           cat changed_files.txt
+          echo "--------------------------------"
 
           if [ ! -s changed_files.txt ]; then
+            echo "No relevant changes detected."
             echo "no_changes=true" >> $GITHUB_ENV
             echo "changed_files=" >> $GITHUB_OUTPUT
           else
@@ -76,9 +84,11 @@ jobs:
         run: |
           mkdir -p processed logs
           while IFS= read -r file; do
-            [ -z "$file" ] && continue
-            echo "Processing: $file"
-            python preprocess_adoc.py "$file"
+            # Safety check: Ensure file still exists (in case of complex renames/deletes)
+            if [ -f "$file" ]; then
+                echo "Processing: $file"
+                python preprocess_adoc.py "$file"
+            fi
           done < changed_files.txt
 
       - name: Commit Preprocessed Files
