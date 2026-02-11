@@ -1,0 +1,7 @@
+Postprocess started: 2026-02-11 18:31:55.192284
+
+✓ final/fr_fr/k8sTs-chart-units.adoc
+✓ final/fr_fr/send-health-data/repeat_snapshots.adoc
+✓ final/fr_fr/send-health-data/repeat_states.adoc
+
+Summary: Processed=3, Cleaned=3, Errors=0
