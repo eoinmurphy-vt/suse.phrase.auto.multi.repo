@@ -1,0 +1,159 @@
+name: Sync Changes from All External Repos
+
+on:
+  schedule:
+    # Schedule A: Runs Hourly (Matches 'hourly' group)
+    - cron: '0 * * * *'
+    # Schedule B: Runs Daily at Midnight (Matches 'daily' group)
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      specific_repo_id:
+        description: "Run for a specific Client ID (leave empty for all)"
+        required: false
+        type: string
+      force_schedule_group:
+        description: "Force specific schedule group (hourly/daily/all)"
+        default: "all"
+        required: false
+
+jobs:
+  # JOB 1: GENERATE MATRIX
+  matrix-setup:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Load Configuration
+        id: load-config
+        run: |
+          mkdir -p config
+          
+          # Dump the GitHub Variable into a local JSON file
+          echo '${{ vars.SUSE_CLIENT_CONFIGURATION }}' > config/clients.json
+          
+          # Validate JSON structure (fails job if variable is invalid)
+          if ! jq . config/clients.json >/dev/null 2>&1; then
+             echo "❌ Error: SUSE_CLIENT_CONFIGURATION variable contains invalid JSON."
+             exit 1
+          fi
+          echo "✅ Configuration loaded successfully."
+
+      - id: set-matrix
+        name: Generate Job Matrix
+        env:
+          TRIGGER_SCHEDULE: ${{ github.event.schedule }}
+          EVENT_NAME: ${{ github.event_name }}
+          SPECIFIC_ID: ${{ inputs.specific_repo_id }}
+          FORCE_GROUP: ${{ inputs.force_schedule_group }}
+        run: |
+          echo "Trigger: $EVENT_NAME"
+          
+          # 1. Determine Target Group (Hourly vs Daily)
+          if [ "$EVENT_NAME" == "schedule" ]; then
+            if [ "$TRIGGER_SCHEDULE" == "0 * * * *" ]; then
+              TARGET_GROUP="hourly"
+            elif [ "$TRIGGER_SCHEDULE" == "0 0 * * *" ]; then
+              TARGET_GROUP="daily"
+            else
+              TARGET_GROUP="all"
+            fi
+          else
+            # Manual trigger defaults to "all" unless forced
+            TARGET_GROUP="${FORCE_GROUP:-all}"
+          fi
+          
+          echo "Target Group: $TARGET_GROUP"
+
+          # 2. Filter JSON based on input
+          if [ -n "$SPECIFIC_ID" ]; then
+             # Case A: Specific Repo requested manually
+             echo "Filtering for specific ID: $SPECIFIC_ID"
+             JSON=$(jq -c --arg id "$SPECIFIC_ID" 'map(select(.id == $id))' config/clients.json)
+          elif [ "$TARGET_GROUP" != "all" ]; then
+             # Case B: Scheduled Run (Filter by schedule property)
+             echo "Filtering for schedule: $TARGET_GROUP"
+             JSON=$(jq -c --arg group "$TARGET_GROUP" 'map(select(.schedule == $group))' config/clients.json)
+          else
+             # Case C: Run All
+             echo "Selecting ALL clients"
+             JSON=$(jq -c . config/clients.json)
+          fi
+
+          # 3. Validation
+          if [ "$JSON" == "[]" ] || [ -z "$JSON" ]; then
+            echo "Warning: Matrix is empty. No jobs will run."
+            echo "matrix=[]" >> $GITHUB_OUTPUT
+          else
+            echo "matrix=$JSON" >> $GITHUB_OUTPUT
+          fi
+
+  # JOB 2: SYNC CLIENTS (PARALLEL)
+  sync-client:
+    needs: matrix-setup
+    if: needs.matrix-setup.outputs.matrix != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        client: ${{ fromJson(needs.matrix-setup.outputs.matrix) }}
+    steps:
+      - name: Checkout Current Repo
+        uses: actions/checkout@v4
+
+      - name: Sync Logic
+        env:
+          # Matrix values come directly from the JSON variable
+          CLIENT_ID: ${{ matrix.client.id }}
+          CLIENT_URL: ${{ matrix.client.url }}
+          CLIENT_BRANCH: ${{ matrix.client.branch }}
+          WATCH_PATH: ${{ matrix.client.watch_path }}
+          # Token to read external client repos
+          EXT_PAT: ${{ secrets.SUSE_PHRASE_CLIENT_WRITE_PAT }}
+          # Token to write back to THIS repo (triggering downstream workflows)
+          WRITE_PAT: ${{ secrets.VISTATEC_REPO_WRITE_PAT }}
+          CURRENT_REPO: ${{ vars.CURRENT_REPO_NAME || github.repository }}
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+
+          echo "=== Syncing $CLIENT_ID ==="
+          
+          # Clone Client Repo
+          git clone --depth 1 --branch "$CLIENT_BRANCH" "https://$EXT_PAT@github.com/$CLIENT_URL.git" temp_client
+          
+          # Define Local Target (Namespaced)
+          LOCAL_TARGET="source/$CLIENT_ID"
+          mkdir -p "$LOCAL_TARGET"
+
+          # Sync Files (Rsync)
+          rsync -av --delete --include='*.adoc' --include='*/' --exclude='*' "temp_client/$WATCH_PATH" "$LOCAL_TARGET/"
+          
+          # Commit Changes
+          git add "$LOCAL_TARGET"
+          
+          if git diff --cached --quiet; then
+            echo "No changes for $CLIENT_ID"
+            exit 0
+          fi
+
+          git commit -m "Sync content from $CLIENT_ID"
+          
+          # Push with WRITE_PAT to trigger downstream pipelines
+          git remote set-url origin https://$WRITE_PAT@github.com/$CURRENT_REPO.git
+          
+          MAX_RETRIES=10
+          count=0
+          until git push origin main; do
+            if [ $count -ge $MAX_RETRIES ]; then
+              echo "Failed to push after $MAX_RETRIES attempts"
+              exit 1
+            fi
+            count=$((count+1))
+            echo "Push conflict, pulling and rebasing... ($count/$MAX_RETRIES)"
+            git pull --rebase origin main
+            sleep $((RANDOM % 10 + 2))
+          done

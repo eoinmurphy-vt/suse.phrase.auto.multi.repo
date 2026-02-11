@@ -1,0 +1,104 @@
+name: Sync Processed Files to Clients
+
+on:
+  push:
+    paths:
+      - 'final/**'
+  workflow_dispatch:
+
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Load Configuration
+        run: |
+          mkdir -p config
+          echo '${{ vars.SUSE_CLIENT_CONFIGURATION }}' > config/clients.json
+          
+          if ! jq . config/clients.json >/dev/null 2>&1; then
+             echo "❌ Error: SUSE_CLIENT_CONFIGURATION variable contains invalid JSON."
+             exit 1
+          fi
+
+      - name: Distribute Files
+        env:
+          EXT_PAT: ${{ secrets.SUSE_PHRASE_CLIENT_WRITE_PAT }}
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          
+          CONFIG_FILE="config/clients.json"
+
+          # Iterate over every folder in final/
+          for REPO_DIR in final/*; do
+            [ -d "$REPO_DIR" ] || continue
+            
+            CLIENT_ID=$(basename "$REPO_DIR")
+            echo ">>> Processing delivery for: $CLIENT_ID"
+
+            # Lookup Client Config using jq
+            CLIENT_URL=$(jq -r ".[] | select(.id==\"$CLIENT_ID\") | .url" $CONFIG_FILE)
+            TARGET_PATH=$(jq -r ".[] | select(.id==\"$CLIENT_ID\") | .target_path" $CONFIG_FILE)
+            BRANCH=$(jq -r ".[] | select(.id==\"$CLIENT_ID\") | .branch" $CONFIG_FILE)
+
+            if [ -z "$CLIENT_URL" ] || [ "$CLIENT_URL" == "null" ]; then
+              echo "⚠ Warning: No configuration found for ID '$CLIENT_ID'. Skipping."
+              continue
+            fi
+
+            echo "    URL: $CLIENT_URL"
+            echo "    Target: $TARGET_PATH"
+            
+            # Setup Temp Workspace
+            TEMP_WS="workspace_$CLIENT_ID"
+            rm -rf "$TEMP_WS"
+            
+            # Clone Client Repo
+            git clone --depth 1 --branch "$BRANCH" "https://$EXT_PAT@github.com/$CLIENT_URL.git" "$TEMP_WS"
+            
+            # Sync Files
+            # Ensure parent directories exist
+            mkdir -p "$TEMP_WS/$(dirname "$TARGET_PATH")"
+            
+            # Rsync content of final/CLIENT_ID/ -> workspace/TARGET_PATH/
+            rsync -av "$REPO_DIR/" "$TEMP_WS/$TARGET_PATH/"
+            
+            # Commit & Push
+            cd "$TEMP_WS"
+            git add .
+            
+            if git diff --cached --quiet; then
+              echo "    No changes to push for $CLIENT_ID"
+            else
+              git commit -m "Translation Update: Delivered processed files"
+              
+              # Push Retry Logic
+              MAX_RETRIES=5
+              count=0
+              success=false
+              until [ $count -ge $MAX_RETRIES ]; do
+                if git push origin "$BRANCH"; then
+                  success=true
+                  break
+                fi
+                count=$((count+1))
+                echo "    Push failed, retrying ($count/$MAX_RETRIES)..."
+                git fetch origin
+                git rebase "origin/$BRANCH"
+                sleep 5
+              done
+
+              if [ "$success" = true ]; then
+                 echo "    ✅ Successfully pushed to $CLIENT_ID"
+              else
+                 echo "    ❌ Failed to push to $CLIENT_ID"
+                 exit 1
+              fi
+            fi
+            
+            cd ..
+            rm -rf "$TEMP_WS"
+          done

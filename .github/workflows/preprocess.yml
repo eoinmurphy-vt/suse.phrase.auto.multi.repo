@@ -1,0 +1,105 @@
+name: Preprocess AsciiDoc Files
+
+on:
+  push:
+    branches: [ main ]
+    # LIMITATION: Variables cannot be used here. 
+    # If vars.CONTENT_DIR changes, you must update this path manually.
+    paths:
+      - 'source/**/*.adoc'
+      - 'preprocess_adoc.py'
+
+  repository_dispatch:
+    types: [trigger-preprocess]
+
+  workflow_dispatch:
+  
+permissions:
+  contents: write
+
+jobs:
+  preprocess:
+    runs-on: ubuntu-latest
+    outputs:
+      changed_files: ${{ steps.changed.outputs.changed_files }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        run: pip install chardet
+
+      - name: Detect Changed AsciiDoc Files
+        id: changed
+        env:
+          # We use the variable here
+          DIR: ${{ vars.CONTENT_DIR || 'source' }} 
+        run: |
+          echo "Detecting changed AsciiDoc files in $DIR..."
+
+          if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+            # Filter diff by the configured directory
+            git diff --name-only --diff-filter=AM HEAD^ HEAD -- "$DIR/" | grep '\.adoc$' > changed_files.txt || true
+          else
+            echo "Initial commit — using all .adoc files"
+            find "$DIR/" -type f -name "*.adoc" > changed_files.txt || true
+          fi
+
+          if [ ! -s changed_files.txt ]; then
+            echo "No changed files detected; processing all .adoc"
+            find "$DIR/" -type f -name "*.adoc" > changed_files.txt
+          fi
+
+          echo "Changed files:"
+          cat changed_files.txt
+
+          if [ ! -s changed_files.txt ]; then
+            echo "no_changes=true" >> $GITHUB_ENV
+            echo "changed_files=" >> $GITHUB_OUTPUT
+          else
+            echo "no_changes=false" >> $GITHUB_ENV
+            echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+            cat changed_files.txt >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Preprocessing
+        if: env.no_changes == 'false'
+        run: |
+          mkdir -p processed logs
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            echo "Processing: $file"
+            python preprocess_adoc.py "$file"
+          done < changed_files.txt
+
+      - name: Commit Preprocessed Files
+        if: env.no_changes == 'false'
+        run: |
+          git config user.name "github-actions"
+          git config user.email actions@github.com
+
+          git add processed/ logs/ || true
+
+          if git diff --cached --quiet; then
+            echo "No files changed; skipping commit"
+          else
+            git commit -m "Auto-preprocessed changed AsciiDoc files"
+            git push origin main
+          fi
+
+      - name: Upload Preprocess Logs
+        if: env.no_changes == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: preprocess-logs
+          path: logs/preprocess_log_*.txt
+          if-no-files-found: ignore

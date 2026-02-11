@@ -1,0 +1,76 @@
+name: Pull from Phrase Incoming Branch
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - phrase-incoming
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  TRANSLATED_DIR: ${{ vars.TRANSLATED_DIR || 'translated' }}
+  PHRASE_INCOMING_BRANCH: ${{ vars.PHRASE_INCOMING_BRANCH || 'phrase-incoming' }}
+
+jobs:
+  sync-incoming:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+          token: ${{ secrets.VISTATEC_REPO_TRIGGER_PAT }}  # Use PAT to enable triggering downstream workflows
+
+      - name: Fetch all branches
+        run: |
+          git fetch --all --prune
+          echo "Available branches:"
+          git branch -a
+
+      - name: Overlay translated/ from phrase-incoming
+        run: |
+          echo "Overlaying translated/ from origin/${PHRASE_INCOMING_BRANCH}…"
+          git checkout "origin/${PHRASE_INCOMING_BRANCH}" -- "${TRANSLATED_DIR}/"
+
+          echo "Translated directory content:"
+          ls -R "$TRANSLATED_DIR"
+
+      - name: Commit translated files into main
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email actions@github.com
+
+          git add "$TRANSLATED_DIR"
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Sync translated content from phrase-incoming"
+          
+          git remote set-url origin https://${{ secrets.VISTATEC_REPO_TRIGGER_PAT }}@github.com/${{ github.repository }}.git
+
+          MAX_ATTEMPTS=10
+          ATTEMPT=1
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            git fetch origin main
+            if git rebase origin/main; then
+              if git push origin main --force-with-lease; then
+                echo "Successfully pushed on attempt $ATTEMPT"
+                exit 0
+              fi
+            else
+              git rebase --abort || true
+            fi
+            echo "Retry $ATTEMPT failed, waiting..."
+            sleep $((ATTEMPT * 5))
+            ATTEMPT=$((ATTEMPT + 1))
+          done
+          echo "Failed after $MAX_ATTEMPTS attempts"
+          exit 1
