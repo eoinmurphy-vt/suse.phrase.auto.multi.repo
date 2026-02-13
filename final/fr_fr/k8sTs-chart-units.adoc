@@ -1,0 +1,324 @@
+= Unités prises en charge pour les graphiques
+:revdate: 2025-07-10
+:page-revdate: {revdate}
+:description: SUSE Observability
+
+Cette page contient toutes les unités prises en charge par les cartes. Pour chaque unité, la description de l'unité est d'abord mentionnée, suivie du nom de l'unité qui devrait être utilisée dans les API de SUSE Observability. Par exemple, pour obtenir une valeur affichée en "notation scientifique", utilisez `sci` comme valeur de l'unité dans une liaison métrique.
+
+Le rendu de l'unité s'adapte automatiquement à la taille de la valeur. Par exemple, si l'unité d'un graphique est `bytes`, la valeur est interprétée comme `bytes(IEC)`. Une valeur de `100` sera rendue par `100B`, mais une valeur de `5242880` (`5*1024*1024`) sera affichée par `5MiB`.
+
+== Divers
+
+* Aucun : aucun
+* Chaîne : chaîne
+* Court : court
+* Pourcentage (0-100) : pourcentage
+* Pourcentage (0,0-1,0) : percentunit
+* Humidité (%H) : humidité
+* Décibel : dB
+* Hexadécimal (0x) : hex0x
+* Hexadécimal : hex
+* Notation scientifique : sci
+* Format de la langue : locale
+* Pixels : pixel
+
+== Accélération
+
+* Mètres/sec² : accMS2
+* Pieds/sec² : accFS2
+* Unité G : accG
+
+== Angle
+
+* Degrés (°) : degré
+* Radians : radian
+* Gradian : grad
+* Minutes d'arc : arcmin
+* Secondes d'arc : arcsec
+
+== Zone
+
+* Mètres carrés (m²) : areaM2
+* Pieds carrés (pi²) : areaF2
+* Milles carrés (mi²) : areaMI2
+
+== Calcul
+
+* FLOP/s : flops
+* MFLOP/s : mflops
+* GFLOP/s : gflops
+* TFLOP/s : tflops
+* PFLOP/s : pflops
+* EFLOP/s : eflops
+* ZFLOP/s : zflops
+* YFLOP/s : yflops
+
+== Concentration
+
+* parties par million (ppm) : ppm
+* parties par milliard (ppb) : conppb
+* nanogramme par mètre cube (ng/m³) : conngm3
+* nanogramme par mètre cube normal (ng/Nm³) : conngNm3
+* microgramme par mètre cube (μg/m³) : conμgm3
+* microgramme par mètre cube normal (μg/Nm³) : conμgNm3
+* milligramme par mètre cube (mg/m³) : conmgm3
+* milligramme par mètre cube normal (mg/Nm³) : conmgNm3
+* gramme par mètre cube (g/m³) : congm3
+* gramme par mètre cube normal (g/Nm³) : congNm3
+* milligrammes par décilitre (mg/dL) : conmgdL
+* millimoles par litre (mmol/L) : conmmolL
+
+== Monnaie
+
+* Dollars ($) : currencyUSD
+* Livres (£) : deviseGBP
+* Euro (€) : deviseEUR
+* Yen (¥) : currencyJPY
+* Roubles (₽) : monnaieRUB
+* Hryvnias (₴) : monnaieUAH
+* Réel (R$) : currencyBRL
+* Couronne danoise (kr) : monnaieDKK
+* Couronne islandaise (kr) : monnaieISK
+* Couronne norvégienne (kr) : monnaieNOK
+* Couronne suédoise (kr) : deviseSEK
+* Couronne tchèque (czk) : monnaieCZK
+* Franc suisse (CHF) : deviseCHF
+* Złoty polonais (PLN) : devisePLN
+* Bitcoin (฿) : currencyBTC
+* Milli Bitcoin (฿) : currencymBTC
+* Micro Bitcoin (฿) : monnaieμBTC
+* Rand sud-africain (R): deviseZAR
+* Roupie indienne (₹) : monnaieINR
+* Won sud-coréen (₩) : monnaieKRW
+* Rupiah indonésienne (Rp) : currencyIDR
+* Peso philippin (PHP) : devisePHP
+* Dong vietnamien (VND) : monnaieVND
+
+== Données
+
+* octets(IEC) : octets
+* octets(SI) : decbytes
+* bits(IEC) : bits
+* bits(SI) : decbits
+* kibibytes : kbytes
+* kilo-octets : deckbytes
+* mebibytes : mbytes
+* mégaoctets : décaoctets
+* gibibytes : gbytes
+* gigaoctets : décgaoctets
+* tebibytes : tbytes
+* téraoctets : dectoctets
+* pebibytes : pbytes
+* pétaoctets : décpoctets
+
+== Débit de données
+
+* paquets/sec : pps
+* octets/seconde(IEC) : binBps
+* octets/sec(SI) : Bps
+* bits/sec(IEC) : binbps
+* bits/sec(SI) : bps
+* kibibytes/sec : KiBs
+* kibibits/sec : Kibits
+* kilobytes/sec : KBs
+* kilobits/sec : Kbits
+* mibibytes/sec : MiBs
+* mibibits/sec : Mibits
+* mégaoctets/sec : MBs
+* mégabits/sec : Mbits
+* gibibytes/sec : GiBs
+* gibibits/sec : Gibits
+* gigaoctets/sec : GBs
+* gigabits/sec : Gbits
+* tebibytes/sec : TiBs
+* tebibits/sec : Tibits
+* téraoctets/sec : TBs
+* térabits/sec : Tbits
+* pibibytes/sec : PiBs
+* pibibits/sec : Pibits
+* pétaoctets/sec : PBs
+* pétabits/sec : Pbits
+
+== Date et heure
+
+* Datetime ISO : dateTimeAsIso
+* Datetime ISO (Pas de date si aujourd'hui) : dateTimeAsIsoNoDateIfToday
+* Datetime US : dateTimeAsUS
+* Datetime US (Pas de date si aujourd'hui) : dateTimeAsUSNoDateIfToday
+* Datetime local : dateTimeAsLocal
+* Datetime local (Pas de date si aujourd'hui) : dateTimeAsLocalNoDateIfToday
+* Datetime défaut : dateTimeAsSystem
+* A partir de maintenant : dateTimeFromNow
+
+== L'énergie
+
+* Watt (W) : watt
+* Kilowatt (kW) : kwatt
+* Mégawatt (MW) : mégawatt
+* Gigawatt (GW) : gwatt
+* Milliwatt (mW) : mwatt
+* Watt par mètre carré (W/m²) : Wm2
+* Volt-ampère (VA) : voltamp
+* Kilovolt-ampère (kVA) : kvoltamp
+* Volt-ampère réactif (var) : voltampreact
+* Kilovolt-ampère réactif (kVAr) : kvoltampreact
+* Wattheure (Wh) : watth
+* Wattheure par kilogramme (Wh/kg) : watthperkg
+* Kilowattheure (kWh) : kwatth
+* Kilowatt-min (kWm) : kwattm
+* Ampère-heure (Ah) : amph
+* Kiloampère-heure (kAh) : kamph
+* Milliampère-heure (mAh) : mamph
+* Joule (J) : joule
+* Electron volt (eV) : ev
+* Ampère (A) : amp
+* Kiloampère (kA) : kamp
+* Milliampère (mA) : mamp
+* Volt (V) : volt
+* Kilovolt (kV) : kvolt
+* Millivolt (mV) : mvolt
+* Décibel-milliwatt (dBm) : dBm
+* Ohm (Ω) : ohm
+* Kiloohm (kΩ) : kohm
+* Mégaohm (MΩ) : Mohm
+* Farad (F) : farad
+* Microfarad (µF) : µfarad
+* Nanofarad (nF) : nfarad
+* Picofarad (pF) : pfarad
+* Femtofarad (fF) : ffarad
+* Henry (H) : henry
+* Millihenry (mH) : mhenry
+* Microhenry (µH) : µhenry
+* Lumens (Lm) : lumens
+
+== Débit
+
+* Gallons/min (gpm) : flowgpm
+* Mètres cubes/seconde (cms) : flowcms
+* Pieds cubes/seconde (cfs) : flowcfs
+* Pieds cubes/minute (cfm) : flowcfm
+* Litre/heure : litreh
+* Litre/min (L/min) : flowlpm
+* milliLitre/min (mL/min) : flowmlpm
+* Lux (lx) : lux
+
+== Force
+
+* Newton-mètres (Nm) : forceNm
+* Kilonewton-mètre (kNm) : forcekNm
+* Newtons (N) : forceN
+* Kilonewtons (kN) : forcekN
+
+== Taux de hachage
+
+* hashes/sec : Hs
+* kilohashes/sec : KHs
+* mégahashs/sec : MHs
+* gigahash/sec : GHs
+* térahash/sec : THs
+* pétahash/sec : PHs
+* exahash/sec : EHs
+
+== Masse
+
+* milligramme (mg) : massmg
+* gramme (g) : massg
+* livre (lb) : masslb
+* kilogramme (kg) : masskg
+* tonne métrique (t) : masst
+
+== Longueur
+
+* millimètre (mm) : longueurmm
+* pouce (in) : longueur (in)
+* pieds (ft) : longueurft
+* mètre (m) : longueurm
+* kilomètre (km) : longueurkm
+* mile (mi) : longueurmi
+
+== Pression
+
+* Millibars : pressurembar
+* Barres : barre de pression
+* Kilobars : pressurekbar
+* Pascals : pressionpa
+* Hectopascals : pressionhpa
+* Kilopascals : pressionkpa
+* Pouces de mercure : pressionhg
+* PSI : pressurepsi
+
+== Radiation
+
+* Becquerel (Bq) : radbq
+* curie (Ci) : radci
+* Gray (Gy) : radgy
+* rad : radrad
+* Sievert (Sv) : radsv
+* milliSievert (mSv) : radmsv
+* microSievert (µSv) : radusv
+* rem : radrem
+* Exposition (C/kg) : radexpckg
+* roentgen (R): radr
+* Sievert/heure (Sv/h) : radsvh
+* milliSievert/heure (mSv/h) : radmsvh
+* microSievert/heure (µSv/h) : radusvh
+
+== Vitesse de rotation
+
+* Révolutions par minute (rpm) : rotrpm
+* Hertz (Hz) : rothz
+* Radians par seconde (rad/s) : rotrads
+* Degrés par seconde (°/s) : rotdegs
+
+== Température
+
+* Celsius (°C) : celsius
+* Fahrenheit (°F) : fahrenheit
+* Kelvin (K) : kelvin
+
+== L'heure
+
+* Hertz (1/s) : hertz
+* nanosecondes (ns) : ns
+* microsecondes (µs) : µs
+* millisecondes (ms) : ms
+* secondes (s) : s
+* minutes (m) : m
+* heures (h) : h
+* jours (d) : d
+* durée (ms) : dtdurationms
+* durée (s) : dtdurations
+* durée (hh:mm:ss) : dthms
+* durée (d hh:mm:ss) : dtdhms
+* Temps de parole (s/100) : temps de parole
+* horloge (ms) : clockms
+* horloge (s) : horloges
+
+== Débit
+
+* comptes/seconde (cps) : cps
+* ops/sec (ops) : ops
+* requêtes/sec (rps) : reqps
+* lectures/sec (rps) : rps
+* écrit/sec (wps) : wps
+* I/O ops/sec (iops) : iops
+* comptes/min (cpm) : cpm
+* ops/min (opm) : opm
+* lectures/min (rpm) : rpm
+* écrit/min (wpm) : wpm
+
+== Vélocité
+
+* mètres/seconde (m/s) : vitessems
+* kilomètres/heure (km/h) : vitessekmh
+* miles/heure (mph) : vélocitémph
+* nœud (kn) : nœud de vitesse
+
+== Volume
+
+* millilitre (ml) : mlitre
+* litre (L) : litre
+* mètre cube : m3
+* Mètre cube normal : Nm3
+* décimètre cube : dm3
+* gallons : gallons
