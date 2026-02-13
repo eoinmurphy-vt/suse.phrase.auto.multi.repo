@@ -29,15 +29,23 @@ jobs:
 
       - name: Load Configuration
         id: load-config
+        env:
+          # 1. Map the variable to the Runner's Environment
+          JSON_CONFIG: ${{ vars.SUSE_CLIENT_CONFIGURATION }}
         run: |
           mkdir -p config
           
-          # Dump the GitHub Variable into a local JSON file
-          echo '${{ vars.SUSE_CLIENT_CONFIGURATION }}' > config/clients.json
+          # 2. Echo the environment variable (Safe Quote handling)
+          echo "$JSON_CONFIG" > config/clients.json
           
-          # Validate JSON structure (fails job if variable is invalid)
+          # 3. Debug: Print the file content to log to verify structure (Optional)
+          cat config/clients.json
+
+          # 4. Validate JSON structure
           if ! jq . config/clients.json >/dev/null 2>&1; then
              echo "❌ Error: SUSE_CLIENT_CONFIGURATION variable contains invalid JSON."
+             # Print verbose error from jq to see exactly where it failed
+             jq . config/clients.json
              exit 1
           fi
           echo "✅ Configuration loaded successfully."
