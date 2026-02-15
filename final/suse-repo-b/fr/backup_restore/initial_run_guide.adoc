@@ -1,0 +1,82 @@
+= Guide de démarrage
+:revdate: 2025-07-10
+:page-revdate: {revdate}
+:description: SUSE Observability en mode auto-hébergé
+
+== Vue d'ensemble
+
+Cette page fournit toutes les informations nécessaires à l'installation et à l'exécution de SUSE Observability.
+
+== Instructions d'installation
+
+[tabs]
+====
+Kubernetes::
++
+--
+Installer SUSE Observability sur xref:/setup/install-stackstate/kubernetes_openshift/README.adoc[Kubernetes].
+--
+
+OpenShift::
++
+--
+Installer SUSE Observability sur xref:/setup/install-stackstate/kubernetes_openshift/openshift_install.adoc[OpenShift].
+--
+====
+
+== Adresse et port
+
+[tabs]
+====
+Kubernetes::
++
+--
+Pour accéder à l'interface utilisateur de SUSE Observability :
+
+. xref:/setup/install-stackstate/kubernetes_openshift/kubernetes_install.adoc#_access_the_suse_observability_ui[Activer un transfert de port.]
+. Accédez à l'interface utilisateur de SUSE Observability à l'adresse suivante : https://localhost:8080
+--
+
+OpenShift::
++
+--
+Pour accéder à l'interface utilisateur de SUSE Observability :
+
+. xref:/setup/install-stackstate/kubernetes_openshift/openshift_install.adoc#_access_the_suse_observability_ui[Activer un transfert de port.]
+. Accédez à l'interface utilisateur de SUSE Observability à l'adresse suivante : https://localhost:8080
+--
+====
+
+== Nom d'utilisateur et mot de passe par défaut
+
+[tabs]
+====
+Kubernetes::
++
+--
+SUSE Observability est configuré par défaut avec le compte administrateur suivant :
+
+* *nom d'utilisateur :* `admin`
+* *mot de passe :* Défini lors de l'installation. Ces données sont collectées par le script `generate_values.sh` et stockées sous forme de hachage MD5 dans le fichier `values.yaml`
+--
+
+OpenShift::
++
+--
+SUSE Observability est configuré par défaut avec le compte administrateur suivant :
+
+* *nom d'utilisateur :* `admin`
+* *mot de passe :* Défini lors de l'installation. Ces données sont collectées par le script `generate_values.sh` et stockées sous forme de hachage MD5 dans le fichier `values.yaml`
+--
+====
+
+== Dépannage
+
+Si vous rencontrez des problèmes lors de l'installation de SUSE Observability ou de la première exécution, consultez le xref:/setup/install-stackstate/troubleshooting.adoc[guide de dépannage de l'installation de SUSE Observability].
+
+== Prochaines étapes
+
+Une fois que SUSE Observability est opérationnel, vous pouvez commencer à configurer des intégrations.
+
+* xref:/k8s-quick-start-guide.adoc[Installer des StackPacks pour intégrer des systèmes externes]
+* xref:/use/views/k8s-views.adoc[Explorez votre cluster Kubernetes]
