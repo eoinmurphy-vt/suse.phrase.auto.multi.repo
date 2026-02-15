@@ -1,0 +1,15 @@
+Postprocess started: 2026-02-15 22:49:09.559933
+
+✓ final/suse-repo-a/k8sTs-chart-units.adoc
+✓ final/suse-repo-a/kubernetes-logs.adoc
+✓ final/suse-repo-a/send-health-data/bundle-add.adoc
+✓ final/suse-repo-a/send-health-data/repeat_snapshots.adoc
+✓ final/suse-repo-a/send-health-data/quickstart.adoc
+✓ final/suse-repo-a/send-health-data/repeat_states.adoc
+✓ final/suse-repo-c/explanations/uninstall.adoc
+✓ final/suse-repo-c/explanations/fetch-helm-oci.adoc
+✓ final/suse-repo-c/explanations/transactional_increments.adoc
+✓ final/suse-repo-b/backup_restore/health-synchronization.adoc
+✓ final/suse-repo-b/backup_restore/tut-deployment.adoc
+
+Summary: Processed=11, Cleaned=10, Errors=0
