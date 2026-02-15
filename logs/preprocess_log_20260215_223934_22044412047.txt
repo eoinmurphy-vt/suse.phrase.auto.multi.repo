@@ -1,0 +1,20 @@
+Starting preprocess: source/suse-repo-b/backup_restore/bundle-diffs.adoc
+✓ Decoded source/suse-repo-b/backup_restore/bundle-diffs.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-b/backup_restore/bundle-diffs.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 0
+
+Completed at 2026-02-15 22:39:34.046275
+Starting preprocess: source/suse-repo-c/explanations/fetch-helm-oci.adoc
+✓ Decoded source/suse-repo-c/explanations/fetch-helm-oci.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-c/explanations/fetch-helm-oci.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 1
+
+Completed at 2026-02-15 22:39:34.088895
