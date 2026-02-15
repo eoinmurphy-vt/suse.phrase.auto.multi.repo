@@ -1,0 +1,58 @@
+= SUSE Observability Support Package (journaux)
+:revdate: 2025-07-10
+:page-revdate: {revdate}
+:description: SUSE Observability en mode auto-hébergé
+
+== Vue d'ensemble
+
+Cette page fournit des outils et des conseils pour la collecte de journaux à partir d'un cluster SUSE Observability. Ces journaux sont essentiels pour diagnostiquer les problèmes, identifier les causes profondes et résoudre les problèmes dans les grappes qui ne fonctionnent pas comme prévu.
+Si vous constatez un comportement inattendu, une dégradation des performances ou une défaillance dans votre cluster SUSE Observability, cette page vous aidera à rassembler les données nécessaires pour comprendre ce qui s'est passé et prendre les mesures correctives qui s'imposent.
+
+== Notes
+
+Le script doit être exécuté à partir d'un hôte sur lequel kubectl est configuré et qui a accès au cluster SUSE Observability ou à partir de tout autre hôte disposant des autorisations nécessaires et de la connectivité au cluster.
+Cela peut être fait directement sur l'hôte en utilisant l'utilisateur root ou via sudo.  Si kubeconfig n'est pas défini, utilisez la commande `export KUBECONFIG=$PATH-TO-YOUR/kubeconfig`.
+
+== Utilisation
+
+Le script doit être téléchargé et exécuté directement sur l'hôte, en utilisant l'utilisateur `root` ou `sudo`.
+
+=== Télécharger et exécuter le script
+
+Téléchargez le script xref::attachment$suse-observability_logs_collector.sh[suse-observability_logs_collector.sh.] 
+
+* Enregistrer le script sous : `suse-observability_logs_collector.sh`
+* Exécutez le script à l'aide des commandes suivantes :
++
+[,bash]
+----
+bash suse-observability_logs_collector.sh
+----
++
+Cela génère un fichier dans le répertoire actuel nommé `suse-observability_logs_<date>.tar.gz`. Veuillez télécharger ce fichier dans le dossier.
+
+Des arguments supplémentaires peuvent être spécifiés :
+[,bash]
+----
+> bash suse-observability_logs_collector.sh -h
+SUSE Observability support package collector.
+Fetches details of a SUSE Observability instance for troubleshooting.
+
+Usage: ./suse-observability_logs_collector.sh [options] [<namespace>]
+
+options:
+  -h  Print this help
+  -e  Fetch logs for suse-observability pods from Elasticsearch
+  -r  Time range for logs to fetch from Elasticsearch,
+      when not specified "7d" is used
+
+<namespace>:
+  The namespace that is running SUSE Observability, or
+  "suse-observability" when not specified
+----
+
+Par exemple, pour collecter 3 jours de journaux à partir de la recherche élastique intégrée lorsque {stackstate-product-name} est déployé dans l'espace de noms `my-observability`:
+[,bash]
+----
+bash suse-observability_logs_collector.sh -e -r 3d my-observability
+----
