@@ -1,0 +1,106 @@
+= Journaux Kubernetes
+:revdate: 2025-07-10
+:page-revdate: {revdate}
+:description: SUSE Observability auto-hébergé v5.1.x
+
+== Vue d'ensemble
+
+Dans une configuration Kubernetes, les fonctions de SUSE Observability sont réparties sur différents pods et les journaux de chaque fonction sont stockés par pod et conteneur. Vous pouvez accéder aux journaux récents en utilisant `kubectl`, mais pour un stockage à long terme, il est recommandé de configurer l'agrégation des journaux.
+
+== Pods Kubernetes pour la journalisation
+
+Les journaux de SUSE Observability sont stockés par pod et conteneur. Le tableau ci-dessous indique le pod d'accès aux journaux relatifs à des fonctions spécifiques de SUSE Observability. Notez que les noms de pods réels incluront un nombre ou un suffixe de chaîne aléatoire (par exemple, `stackstate-receiver-5b9d79db86-h2hkz`) et peuvent également inclure le nom de la version spécifiée lorsque SUSE Observability a été déployé en tant que préfixe.
+
+[NOTE]
+====
+Notez que les logs stockés sur les pods seront régulièrement supprimés. Pour un accès à long terme aux logs, il est conseillé de mettre en place une <<_log_aggregation,agrégation de logs>> pour votre cluster Kubernetes.
+====
+
+
+|===
+| Fonction d'observabilité de SUSE | Logs sur le pod
+
+| API (y compris la topologie, les graphiques et les paramètres)
+| `stackstate-api`
+
+| Indexation des données dans Elasticsearch
+| `stackstate-e2es` (événements)
+
+| L'ingestion de données
+| `stackstate-receiver`
+
+| Gestionnaires d'événements
+| `stackstate-view-health`
+
+| Moniteur
+| `stackstate-checks`
+
+| Propagation de l'état
+| `stackstate-state`
+
+| Synchronization
+| `stackstate-sync`
+
+| Voir l'état de santé
+| `stackstate-view-health`
+|===
+
+Vous pouvez accéder aux journaux d'un module spécifique à l'aide de la commande `kubectl logs`.
+
+Par exemple :
+
+[,sh]
+----
+$ kubectl logs stackstate-api-0
+----
+
+== Accéder aux journaux récents
+
+=== Grumes en gousses ou en conteneurs
+
+Les journaux les plus récents peuvent être extraits de Kubernetes à l'aide de la commande `kubectl logs`. Cochez le <<_kubernetes_pods_for_logging,pod que vous devez surveiller>> pour récupérer un journal spécifique.
+
+Par exemple :
+
+[,sh]
+----
+# Snapshot of logs for all containers of <pod-name>
+$ kubectl logs <pod-name> --all-containers=true
+
+# Stream logs for all containers of <pod-name>
+$ kubectl logs -f <pod-name> --all-containers=true
+
+# Snapshot of logs for a specific container of <pod-name>
+$ kubectl logs -c <container-name> <pod-name>
+
+# Snapshot of logs for previous terminated container of <pod-name>
+$ kubectl logs -p -c <container-name> <pod-name>
+----
+
+=== Journaux de synchronisation
+
+Tous les journaux de synchronisation se trouvent dans un pod `stackstate-sync-<suffix>`. Vous pouvez utiliser le nom de synchronisation pour localiser des informations de journal spécifiques dans un instantané de journal.
+
+Par exemple :
+
+[,sh]
+----
+# Logs of the synchronization for a specific Kubernetes cluster
+$ kubectl logs stackstate-sync-0 | grep "Kubernetes - \<cluster-name\>"
+
+# Logs of the Agent synchronization
+$ kubectl logs stackstate-sync-0 | grep "Agent"
+----
+
+== Agrégation de journaux
+
+Pour le stockage à long terme des données de journaux de SUSE Observability, il est conseillé de configurer l'agrégation de journaux sur votre cluster Kubernetes. Cela peut se faire en utilisant un système de stockage tiers tel que Elasticsearch, Splunk ou Logz.io et un expéditeur de logs tel que Logstash ou Fluentd.
+
+Pour plus de détails sur la manière de procéder, consultez le site :
+
+* Expédition de journaux avec https://docs.fluentd.org/container-deployment/kubernetes[Fluentd (fluentd.org)]
+* Un aperçu complet de la mise en place de l' https://docs.bitnami.com/tutorials/integrate-logging-kubernetes-kibana-elasticsearch-fluentd/[agrégation des logs]
+
+== Voir aussi
+
+* https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands[Référence de la commande kubectl (kubernetes.io/docs)]

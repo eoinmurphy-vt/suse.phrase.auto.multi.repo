@@ -1,0 +1,89 @@
+= Créer une ressource d'une offre groupée
+:revdate: 2025-07-23
+:page-revdate: {revdate}
+
+Les paquets sont automatiquement créés par {product_name} lorsqu'un `GitRepo` est créé. Dans la plupart des cas, `Bundles` ne doit pas être créé manuellement par l'utilisateur. Si vous souhaitez déployer des ressources à partir d'un dépôt git, utilisez plutôt unxref:how-tos-for-users/gitrepo-add.adoc[GitRepo].
+
+Si vous souhaitez déployer des ressources sans dépôt git, suivez ce guide pour créer un dépôt `Bundle`.
+
+[NOTE]
+====
+Si vous souhaitez déployer des ressources sans utiliser de contrôleur Fleet. Reportez-vous à la section xref:how-tos-for-users/install-use-fleet-cli.adoc#_convert_a_helm_chart_into_a_bundle[Convertir une carte Helm en un paquet à l'aide de l'interface de programmation.]
+====
+
+Lors de la création d'un `GitRepo` {product_name}, les ressources seront récupérées à partir d'un dépôt git et ajoutées à un Bundle.
+Lors de la création d'un site `Bundle`, les ressources doivent être explicitement spécifiées dans le document `Bundle` Spec.
+Les ressources peuvent être compressées avec gz. Voir https://github.com/rancher/rancher/blob/v2.7.3/pkg/controllers/provisioningv2/managedchart/managedchart.go#L149-L153[managedchart.go]un exemple de la façon dont Rancher utilise la compression dans le code go.
+
+Si vous souhaitez déployer des clusters en aval, vous devez définir des cibles. Les cibles fonctionnent de la même manière que les cibles dans `GitRepo`.
+Voir xref:how-tos-for-users/gitrepo-targets.adoc#_defining_targets[Mapping to Downstream Clusters].
+
+L'exemple suivant crée un site nginx `Deployment` dans le cluster local :
+
+[,yaml]
+----
+kind: Bundle
+apiVersion: fleet.cattle.io/v1alpha1
+metadata:
+  # Any name can be used here
+  name: my-bundle
+  # For single cluster use fleet-local, otherwise use the namespace of
+  # your choosing
+  namespace: fleet-local
+spec:
+  resources:
+  # List of all resources that will be deployed
+  - content: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: nginx-deployment
+        labels:
+          app: nginx
+      spec:
+        replicas: 3
+        selector:
+          matchLabels:
+            app: nginx
+        template:
+          metadata:
+            labels:
+              app: nginx
+          spec:
+            containers:
+              - name: nginx
+                image: nginx:1.14.2
+                ports:
+                  - containerPort: 80
+    name: nginx.yaml
+  targets:
+  - clusterName: local
+----
+
+== Objectifs
+
+L'offre groupée peut cibler plusieurs groupes. Il utilise le même xref:how-tos-for-users/gitrepo-targets.adoc#_target_matching[ciblage que le GitRepo].
+Des xref:reference/ref-fleet-yaml.adoc#_supported_customizations[options de personnalisation] supplémentaires peuvent être spécifiées pour chaque cible :
+
+[,yaml]
+----
+targets:
+- clusterSelector:
+    matchLabels:
+      env: dev
+  defaultNamespace: lab-1
+  helm:
+    values:
+      replicas: 1
+----
+
+== Limites
+
+Les options de barre relatives au téléchargement de la carte de barre seront ignorées. Le tableau de bord est téléchargé par le logiciel fleet-cli, qui crée les paquets. L'ensemble doit contenir toutes les ressources de la carte. Par conséquent, la liasse ne sera pas prise en compte :
+
+* `spec.helm.repo`
+* `spec.helm.charts`
+
+Vous ne pouvez pas utiliser un `fleet.yaml` dans les ressources, il est seulement utilisé par le fleet-cli pour créer des bundles.
+
+Le champ `spec.targetRestrictions` n'est pas utile, car il s'agit d'une liste d'autorisations pour les cibles spécifiées dans `spec.targets`. Elle n'est pas nécessaire, puisque `targets` est explicitement donné dans un paquet et qu'un `targetRestrictions` vide a pour valeur par défaut d'autoriser.
