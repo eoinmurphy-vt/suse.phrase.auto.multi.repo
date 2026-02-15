@@ -1,0 +1,10 @@
+Postprocess started: 2026-02-15 21:18:36.820659
+
+✓ final/fr_fr/k8sTs-chart-units.adoc
+✓ final/fr_fr/send-health-data/repeat_snapshots.adoc
+✓ final/fr_fr/send-health-data/quickstart.adoc
+✓ final/fr_fr/send-health-data/repeat_states.adoc
+✓ final/fr_fr/explanations/transactional_increments.adoc
+✓ final/fr_fr/backup_restore/tut-deployment.adoc
+
+Summary: Processed=6, Cleaned=6, Errors=0
