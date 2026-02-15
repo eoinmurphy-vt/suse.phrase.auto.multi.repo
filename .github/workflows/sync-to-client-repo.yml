@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - 'final/**'
+  # Listen for the signal sent by postprocess.yml
+  repository_dispatch:
+    types: [trigger-sync-to-client-repo]
   workflow_dispatch:
 
 jobs:

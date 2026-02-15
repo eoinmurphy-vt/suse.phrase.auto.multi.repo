@@ -52,8 +52,8 @@ def cleanup_text(text):
 
 def map_output_path(src_path: str, rel: str) -> str:
     """
-    Input:  translated/REPO_ID/de_de/docs/.../modules/en/pages/file.adoc
-    Output: final/REPO_ID/docs/.../modules/de/pages/file.adoc
+    Input structure from Phrase: translated/fr_fr/suse-repo-b/path/to/file.adoc
+    Target structure:            final/suse-repo-b/path/to/file.adoc (with lang adjustments)
     """
     parts = rel.split(os.sep)
     # Expected: [RepoID, LangFolder, ...path...]
@@ -61,21 +61,21 @@ def map_output_path(src_path: str, rel: str) -> str:
         log(f"⚠ Skipping invalid path depth: {rel}")
         return None
 
-    repo_id = parts[0]
-    lang_folder = parts[1]
-    lang_code = lang_folder.split("_")[0] # de_de -> de
+    lang_folder = parts[0]   # Index 0 is Language (e.g., 'fr_fr')
+    repo_id = parts[1]       # Index 1 is Repo ID (e.g., 'suse-repo-b')
+    lang_code = lang_folder.split("_")[0] # 'fr'
 
-    # Rebuild path skipping repo_id (0) and lang_folder (1)
-    remainder = os.path.join(*parts[2:])
+    # The content is everything after the repo_id
+    remainder_path = os.path.join(*parts[2:])
     
-    # Replace 'modules/en' with 'modules/target_lang'
-    # Adjust this logic if your source paths differ
-    if "/modules/en/" in remainder:
-        remainder = remainder.replace("/modules/en/", f"/modules/{lang_code}/")
-    elif remainder.startswith("modules/en/"):
-        remainder = remainder.replace("modules/en/", f"modules/{lang_code}/", 1)
+    # Adjust path for Antora structure (swap 'en' for target lang)
+    if "/modules/en/" in remainder_path:
+        remainder_path = remainder_path.replace("/modules/en/", f"/modules/{lang_code}/")
+    elif remainder_path.startswith("modules/en/"):
+        remainder_path = remainder_path.replace("modules/en/", f"modules/{lang_code}/", 1)
 
-    return os.path.join(DST_DIR, repo_id, remainder)
+    # Reconstruct: final / REPO_ID / <path>
+    return os.path.join(DST_DIR, repo_id, remainder_path)
 
 # --- MAIN ---
 with open(LOG_FILE, "w", encoding="utf-8") as f:
@@ -84,6 +84,7 @@ with open(LOG_FILE, "w", encoding="utf-8") as f:
 for path in Path(SRC_DIR).rglob("*.adoc"):
     src_path = str(path)
     rel = os.path.relpath(src_path, SRC_DIR)
+    
     dst_path = map_output_path(src_path, rel)
 
     if not dst_path:

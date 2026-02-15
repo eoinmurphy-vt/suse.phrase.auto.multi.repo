@@ -45,8 +45,8 @@ jobs:
 
       - name: Debug Final Folder Contents
         run: |
-          echo "$DST_DIR/ content:"
-          ls -R "$DST_DIR" || echo "$DST_DIR folder missing"
+          echo "Contents of $DST_DIR:"
+          ls -R "$DST_DIR" || echo "Folder empty"
 
       - name: Commit Final Files
         run: |
@@ -68,34 +68,27 @@ jobs:
 
           MAX_ATTEMPTS=10
           ATTEMPT=1
-
           while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
             git fetch origin main
-
-            if ! git rebase origin/main; then
-              echo "Rebase failed"
-              exit 1
+            if git rebase origin/main; then
+              if git push --force-with-lease origin main; then
+                echo "Push succeeded"
+                echo "COMMITTED=true" >> $GITHUB_ENV
+                break
+              fi
+            else
+              git rebase --abort || true
             fi
-
-            if git push --force-with-lease origin main; then
-              echo "Push succeeded"
-              echo "COMMITTED=true" >> $GITHUB_ENV
-              break
-            fi
-
-            echo "Push failed, retrying... ($ATTEMPT)"
-            ATTEMPT=$((ATTEMPT+1))
             sleep 10
+            ATTEMPT=$((ATTEMPT+1))
           done
+          if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then exit 1; fi
 
-          if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
-            echo "Push failed after all retries"
-            exit 1
-          fi
-
+      # Dispatch Signal
       - name: Dispatch Sync to Client Repo
         if: env.COMMITTED == 'true'
         run: |
+          echo "Triggering sync for repo: $CURRENT_REPO"
           curl -X POST \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
