@@ -1,0 +1,40 @@
+Starting preprocess: source/suse-repo-a/kubernetes-logs.adoc
+✓ Decoded source/suse-repo-a/kubernetes-logs.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-a/kubernetes-logs.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 0
+
+Completed at 2026-02-15 21:01:10.720725
+Starting preprocess: source/suse-repo-a/send-health-data/quickstart.adoc
+✓ Decoded source/suse-repo-a/send-health-data/quickstart.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-a/send-health-data/quickstart.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 0
+
+Completed at 2026-02-15 21:01:10.771501
+Starting preprocess: source/suse-repo-b/backup_restore/health-synchronization.adoc
+✓ Decoded source/suse-repo-b/backup_restore/health-synchronization.adoc as Windows-1252 (0.73)
+Saved processed file → processed/suse-repo-b/backup_restore/health-synchronization.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 0
+
+Completed at 2026-02-15 21:01:10.907655
+Starting preprocess: source/suse-repo-b/backup_restore/tut-deployment.adoc
+✓ Decoded source/suse-repo-b/backup_restore/tut-deployment.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-b/backup_restore/tut-deployment.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 0
+
+Completed at 2026-02-15 21:01:10.962862
