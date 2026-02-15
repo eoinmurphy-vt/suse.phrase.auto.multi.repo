@@ -1,0 +1,12 @@
+Postprocess started: 2026-02-15 21:18:38.225882
+
+✓ final/fr_fr/k8sTs-chart-units.adoc
+✓ final/fr_fr/kubernetes-logs.adoc
+✓ final/fr_fr/send-health-data/repeat_snapshots.adoc
+✓ final/fr_fr/send-health-data/quickstart.adoc
+✓ final/fr_fr/send-health-data/repeat_states.adoc
+✓ final/fr_fr/explanations/transactional_increments.adoc
+✓ final/fr_fr/backup_restore/health-synchronization.adoc
+✓ final/fr_fr/backup_restore/tut-deployment.adoc
+
+Summary: Processed=8, Cleaned=8, Errors=0
