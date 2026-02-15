@@ -1,24 +1,28 @@
 name: Preprocess AsciiDoc Files
 
 on:
-  push:
-    branches: [ main ]
-    # LIMITATION: Variables cannot be used here. 
-    # If vars.CONTENT_DIR changes, you must update this path manually.
-    paths:
-      - 'source/**/*.adoc'
-      - 'preprocess_adoc.py'
-
-  repository_dispatch:
-    types: [trigger-preprocess]
-
-  workflow_dispatch:
+  # FIX: Trigger when the Sync workflow finishes successfully
+  workflow_run:
+    workflows: ["Sync Changes from External Repos"]
+    types:
+      - completed
   
+  # Keep manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      process_all:
+        description: "Force process ALL files (ignore history)"
+        required: false
+        default: false
+        type: boolean
+
 permissions:
   contents: write
 
 jobs:
   preprocess:
+    # Safety Check: Only run if the Sync was actually successful
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} || ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     outputs:
       changed_files: ${{ steps.changed.outputs.changed_files }}
@@ -27,7 +31,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Crucial for calculating diffs
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -40,27 +44,32 @@ jobs:
       - name: Detect Changed AsciiDoc Files
         id: changed
         env:
-          # We use the variable here
           DIR: ${{ vars.CONTENT_DIR || 'source' }}
-          EVENT_NAME: ${{ github.event_name }}
+          FORCE_ALL: ${{ inputs.process_all }}
+          # workflow_run doesn't provide easy access to "before" commit, 
+          # so we stick to our robust "Last Successful Run" logic.
         run: |
-          echo "Triggered by: $EVENT_NAME"
-          echo "Scanning directory: $DIR"
-
-          # 1. Find the last successful preprocess commit
-          # We look for the specific commit message used by this workflow
-          LAST_RUN_COMMIT=$(git log --grep="Auto-preprocessed changed AsciiDoc files" -n 1 --format="%H" || true)
-
-          if [ -z "$LAST_RUN_COMMIT" ]; then
-            echo "⚠ No previous run found (First Run). Scanning ALL files."
+          echo "Triggered by: ${{ github.event_name }}"
+          
+          # 1. Manual Force
+          if [ "$FORCE_ALL" == "true" ]; then
+            echo "🚀 Manual Override: Force processing ALL files..."
             find "$DIR/" -type f -name "*.adoc" > changed_files.txt
+          
           else
-            echo "✅ Last Preprocess Run found at: $LAST_RUN_COMMIT"
-            echo "   Calculating changes from $LAST_RUN_COMMIT to HEAD..."
-            
-            # 2. Diff against that commit
-            # --diff-filter=AM ensures we only catch Added or Modified files (ignoring Deletions)
-            git diff --name-only --diff-filter=AM "$LAST_RUN_COMMIT" HEAD -- "$DIR/" | grep '\.adoc$' > changed_files.txt || true
+            # 2. Smart Diff: Find last time WE (this workflow) ran
+            LAST_RUN_COMMIT=$(git log --grep="Auto-preprocessed changed AsciiDoc files" -n 1 --format="%H" || true)
+
+            if [ -z "$LAST_RUN_COMMIT" ]; then
+              echo "⚠ No previous run found. Scanning ALL files."
+              find "$DIR/" -type f -name "*.adoc" > changed_files.txt
+            else
+              echo "✅ Last Preprocess Run found at: $LAST_RUN_COMMIT"
+              echo "   Calculating changes from $LAST_RUN_COMMIT to HEAD..."
+              
+              # Diff against the last time we successfully preprocessed
+              git diff --name-only --diff-filter=AM "$LAST_RUN_COMMIT" HEAD -- "$DIR/" | grep '\.adoc$' > changed_files.txt || true
+            fi
           fi
 
           echo "--------------------------------"
@@ -71,7 +80,6 @@ jobs:
           if [ ! -s changed_files.txt ]; then
             echo "No relevant changes detected."
             echo "no_changes=true" >> $GITHUB_ENV
-            echo "changed_files=" >> $GITHUB_OUTPUT
           else
             echo "no_changes=false" >> $GITHUB_ENV
             echo "changed_files<<EOF" >> $GITHUB_OUTPUT
@@ -84,7 +92,6 @@ jobs:
         run: |
           mkdir -p processed logs
           while IFS= read -r file; do
-            # Safety check: Ensure file still exists (in case of complex renames/deletes)
             if [ -f "$file" ]; then
                 echo "Processing: $file"
                 python preprocess_adoc.py "$file"
