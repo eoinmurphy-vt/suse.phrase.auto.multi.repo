@@ -50,32 +50,52 @@ def cleanup_text(text):
     if text != before: stats["cleaned"] += 1
     return text
 
+def get_target_lang(phrase_folder):
+    """
+    Determines the target language code.
+    - Standard: de_de -> de
+    - Chinese/Exceptions: zh_cn -> zh-cn
+    """
+    folder = phrase_folder.lower()
+    
+    # EXCEPTIONS: Languages where Region is required
+    exceptions = {
+        "zh_cn": "zh-cn", # Simplified
+        "zh_sg": "zh-cn",
+        "zh_tw": "zh-tw", # Traditional
+        "zh_hk": "zh-tw",
+        "pt_br": "pt-br"  # Brazilian Portuguese
+    }
+    
+    if folder in exceptions:
+        return exceptions[folder]
+        
+    # DEFAULT: Take the first part (fr_fr -> fr)
+    return folder.split("_")[0]
+
 def map_output_path(src_path: str, rel: str) -> str:
     """
     Input structure from Phrase: translated/fr_fr/suse-repo-b/path/to/file.adoc
-    Target structure:            final/suse-repo-b/path/to/file.adoc (with lang adjustments)
+    Target structure:            final/suse-repo-b/fr/path/to/file.adoc
     """
     parts = rel.split(os.sep)
-    # Expected: [RepoID, LangFolder, ...path...]
+    
     if len(parts) < 3: 
         log(f"⚠ Skipping invalid path depth: {rel}")
         return None
 
-    lang_folder = parts[0]   # Index 0 is Language (e.g., 'fr_fr')
-    repo_id = parts[1]       # Index 1 is Repo ID (e.g., 'suse-repo-b')
-    lang_code = lang_folder.split("_")[0] # 'fr'
+    # 1. Parse Structure
+    lang_folder = parts[0]   # 'fr_fr' or 'zh_cn'
+    repo_id = parts[1]       # 'suse-repo-b'
+    
+    # 2. Get Smart Language Code
+    lang_code = get_target_lang(lang_folder)
 
-    # The content is everything after the repo_id
+    # 3. Get Content Path
     remainder_path = os.path.join(*parts[2:])
     
-    # Adjust path for Antora structure (swap 'en' for target lang)
-    if "/modules/en/" in remainder_path:
-        remainder_path = remainder_path.replace("/modules/en/", f"/modules/{lang_code}/")
-    elif remainder_path.startswith("modules/en/"):
-        remainder_path = remainder_path.replace("modules/en/", f"modules/{lang_code}/", 1)
-
-    # Reconstruct: final / REPO_ID / <path>
-    return os.path.join(DST_DIR, repo_id, remainder_path)
+    # 4. Construct Path: final / REPO_ID / LANG_CODE / CONTENT
+    return os.path.join(DST_DIR, repo_id, lang_code, remainder_path)
 
 # --- MAIN ---
 with open(LOG_FILE, "w", encoding="utf-8") as f:
