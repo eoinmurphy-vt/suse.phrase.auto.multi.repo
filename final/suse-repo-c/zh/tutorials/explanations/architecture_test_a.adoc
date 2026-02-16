@@ -1,0 +1,29 @@
+= 建筑学
+:revdate: 2025-04-30
+:page-revdate: {revdate}
+
+{product_name} 有两个主要组成部分。{product_name} 控制器和群集代理。这些组件以两阶段拉动模式工作。{product_name} 控制器将从 git 提取数据，集群代理将从{product_name} 控制器提取数据。
+
+== {product_name} 控制器
+
+{product_name} 控制器是在任何标准 Kubernetes 集群中运行的一组 Kubernetes 控制器。 {product_name} 控制器公开的唯一 API 是 Kubernetes API，舰队控制器没有自定义 API。
+
+== 集群代理
+
+每个群集中运行一个群集代理，负责与{product_name} 控制器对话。
+群集与{product_name} 控制器之间的唯一通信是通过该代理进行的，所有通信都是从受管群集到{product_name} 控制器。机群控制器不会启动与下游机群的连接。这意味着托管集群可以在专用网络和 NAT 后面运行。唯一的要求是，集群代理需要能够与运行{product_name} 控制器的集群的 Kubernetes API 通信。如果使用xref:how-tos-for-operators/cluster-registration.adoc#_manager_initiated[管理器启动的]群集注册流程，则属于例外情况。这不是必须的，而是一种可选模式。
+
+群组代理并不假定具有 "始终在线 "的连接。一旦可以连接，它们将立即恢复运行。未来的增强功能可能会增加安排代理签入时间的功能，但现在他们总是会尝试连接。
+
+== 安全
+
+{product_name} 控制器动态创建服务账户，管理其 RBAC，然后将令牌交给下游集群。群集通过选择性过期的群集注册令牌进行注册。
+群组注册令牌仅在注册过程中使用，以生成该群组专用的凭证。群组凭证建立后，群组会 "忘记 "群组注册令牌。
+
+分配给群集的服务账户只有在专门为该群集创建的命名空间中列出`BundleDeployment` 的权限。它还可以更新`BundleDeployment` 的`status` 子资源及其`Cluster` 资源的`status`子资源。
+
+== 组件概览
+
+概述各组成部分及其如何在高层次上相互作用。
+
+image::FleetComponents.svg[静态, 600]
