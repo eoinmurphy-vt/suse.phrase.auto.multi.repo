@@ -1,0 +1,30 @@
+Starting preprocess: source/suse-repo-a/pages/use/views/multi-user_test_b.adoc
+✓ Decoded source/suse-repo-a/pages/use/views/multi-user_test_b.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-a/pages/use/views/multi-user_test_b.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 0
+
+Completed at 2026-02-16 20:39:04.701218
+Starting preprocess: source/suse-repo-b/changelogs/imagescan_test_b.adoc
+✓ Decoded source/suse-repo-b/changelogs/imagescan_test_b.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-b/changelogs/imagescan_test_b.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 0
+
+Completed at 2026-02-16 20:39:04.754823
+Starting preprocess: source/suse-repo-c/tutorials/explanations/gitrepo-targets_test_b.adoc
+✓ Decoded source/suse-repo-c/tutorials/explanations/gitrepo-targets_test_b.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-c/tutorials/explanations/gitrepo-targets_test_b.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 0
+
+Completed at 2026-02-16 20:39:04.806249
