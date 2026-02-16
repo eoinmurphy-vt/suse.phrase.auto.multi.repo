@@ -1,0 +1,12 @@
+Postprocess started: 2026-02-16 19:24:06.487560
+
+✓ final/suse-repo-a/pt/nav_test_a.adoc
+✓ final/suse-repo-a/pt/pages/k8s-getting-started_test_a.adoc
+✓ final/suse-repo-a/pt/pages/use/views/k8s-view-structure_test_a.adoc
+✓ final/suse-repo-c/pt/tutorials/quickstart_test_a.adoc
+✓ final/suse-repo-c/pt/tutorials/explanations/architecture_test_a.adoc
+✓ final/suse-repo-b/pt/persona_test_a.adoc
+✓ final/suse-repo-b/pt/reference/ref-schedule_test_a.adoc
+✓ final/suse-repo-b/pt/reference/cli/fleet-controller/fleet-controller_test_a.adoc
+
+Summary: Processed=8, Cleaned=4, Errors=0
