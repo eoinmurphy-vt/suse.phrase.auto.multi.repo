@@ -1,0 +1,70 @@
+Starting preprocess: source/suse-repo-b/changelogs/v0.13.0.adoc
+✓ Decoded source/suse-repo-b/changelogs/v0.13.0.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-b/changelogs/v0.13.0.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 1
+
+Completed at 2026-02-16 14:01:15.021268
+Starting preprocess: source/suse-repo-b/persona.adoc
+✓ Decoded source/suse-repo-b/persona.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-b/persona.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 0
+
+Completed at 2026-02-16 14:01:15.070022
+Starting preprocess: source/suse-repo-b/reference/cli/fleet-controller/fleet-controller.adoc
+✓ Decoded source/suse-repo-b/reference/cli/fleet-controller/fleet-controller.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-b/reference/cli/fleet-controller/fleet-controller.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 1
+
+Completed at 2026-02-16 14:01:15.118845
+Starting preprocess: source/suse-repo-b/reference/ref-schedule.adoc
+✓ Decoded source/suse-repo-b/reference/ref-schedule.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-b/reference/ref-schedule.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 1
+
+Completed at 2026-02-16 14:01:15.167769
+Starting preprocess: source/suse-repo-c/persona.adoc
+✓ Decoded source/suse-repo-c/persona.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-c/persona.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 0
+
+Completed at 2026-02-16 14:01:15.216350
+Starting preprocess: source/suse-repo-c/tutorials/explanations/architecture.adoc
+✓ Decoded source/suse-repo-c/tutorials/explanations/architecture.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-c/tutorials/explanations/architecture.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 0
+
+Completed at 2026-02-16 14:01:15.266053
+Starting preprocess: source/suse-repo-c/tutorials/quickstart.adoc
+✓ Decoded source/suse-repo-c/tutorials/quickstart.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-c/tutorials/quickstart.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 0
+
+Completed at 2026-02-16 14:01:15.314791
