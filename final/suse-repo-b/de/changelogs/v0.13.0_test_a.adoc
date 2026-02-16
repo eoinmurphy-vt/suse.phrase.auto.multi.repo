@@ -1,0 +1,111 @@
+= v0.13.0
+:revdate: 2025-07-23
+:page-revdate: {revdate}
+:page-date: 2025-07-23 15:09:14 +0000 UTC
+
+*Veröffentlicht am 2025-07-23 15:09:14 +0000 UTC von `github-actions[bot]`.*
+
+== Beschreibung
+
+== Bemerkenswerte Änderungen
+
+* HelmOps und OCI Storage werden jetzt vollständig unterstützt und sind nicht mehr experimentell.
+* Verbesserte Rückverfolgbarkeit für erstellte Bilder.
+* Genauere und leichtere Aktualisierungen des Ressourcenstatus.
+
+== Ergänzungen
+
+* {product_name} unterstützt eine neue, benutzergesteuerte Bundle-Scan-Methode für mehr Flexibilität. Die bisherige Scanmethode wird weiterhin unterstützt. Siehe xref:explanations/gitrepo-content.adoc#_alternative_scan_explicitly_defined_by_the_user[Dokumentation], beigetragen von @0xavi0, PR https://github.com/rancher/fleet/pull/3480[] #3480.
+* Wenn SSH verwendet wird, um auf ein Git-Repository zu verweisen, prüft {product_name} standardmäßig Host-Schlüssel und lehnt Verbindungsversuche zu unbekannten Hosts ab xref:/how-tos-for-users/gitrepo-add.adoc[Bekannte Hosts] von https://github.com/weyfonk[PR#3523] @weyfonk in link:https://github.com/rancher/fleet/issues/3523[].
+* Die Anzahl der Replikate ist jetzt sowohl für Controller als auch für Agenten konfigurierbar. Siehe xref:how-tos-for-operators/installation.adoc#_controller_and_agent_replicas[Dokumentation].
+  (Beigetragen von @p-se, PR https://github.com/rancher/fleet/pull/3457[] #3457)
+* {product_name} kann nun für jedes GitRepo ein eigenes Webhook-Geheimnis verwenden. Siehe xref:how-tos-for-users/webhook.adoc#option-2-configure-secret[Dokumentation].
+  (Beigetragen von @0xavi0, PR https://github.com/rancher/fleet/pull/3490[] #3490)
+* {product_name} Diagramme unterstützen nun zusätzliche Beschriftungen und Anmerkungen, die sich auf Controller-Einsätze übertragen.
+  (Beigetragen von @0xavi0 und @p-se, PRs https://github.com/rancher/fleet/pull/3531[] #3531 und https://github.com/rancher/fleet/pull/3664[] #3664)
+* Die Wahl des Agentenleiters ist jetzt konfigurierbar. Siehe das https://github.com/rancher/fleet/blob/main/charts/fleet/values.yaml#L135-L138[Beispiel].
+  (Beigetragen von @p-se, PR https://github.com/rancher/fleet/pull/3463[] #3463)
+* Die Migration des alten Dienstkontos wurde entfernt. (Beigetragen von @weyfonk, PR https://github.com/rancher/fleet/pull/3601[] #3601)
+* {product_name} berechnet keine Ressourcenschlüssel mehr in Bundle-Status. (Beigetragen von @manno, PR https://github.com/rancher/fleet/pull/3681[] #3681)
+* {product_name} fügt neue GitJob-Metriken hinzu. Siehe xref:how-tos-for-users/observability.adoc#_metrics[Dokumentation].
+  (Beigetragen von @p-se, PR https://github.com/rancher/fleet/pull/3649[] #3649)
+* Agenten können nun Cluster mit Hilfe eines Labels überspringen. (Beigetragen von @manno, PR https://github.com/rancher/fleet/pull/3744[] #3744)
+
+=== HelmOps
+
+HelmOps ist nicht mehr experimentell.`HelmOp` Ressourcen (umbenannt von `HelmApp`) werden jetzt unterstützt:
+
+* Abruf von Helm-Repositories
+* Semantische Versionierungsbeschränkungen (siehe https://github.com/rancher/fleet/issues/3862[dieses bekannte Problem] für OCI-Diagramme)
+* Verhinderung von Bundle-Namenskollisionen zwischen GitOps- und HelmOps-Bundles
+* Installation von Helm-Diagrammen im strikten TLS-Modus
+
+Metriken und Cluster-Status enthalten jetzt HelmOps-Daten. Weitere Informationen finden Sie in der xref:how-tos-for-users/helm-ops.adoc[Dokumentation{product_name} ].
+
+=== OCI-Speicherung
+
+Die OCI-Speicherung ist nicht mehr experimentell und ist standardmäßig aktiviert, obwohl Bundles sie nicht standardmäßig verwenden. Sie kann immer noch deaktiviert werden, indem `OCI_STORAGE=false` in `extraEnv` bei der Installation von {product_name} eingestellt wird.
+
+Sie unterstützt auch die Garbage Collection auf Best-Effort-Basis sowie eine verbesserte Rückverfolgbarkeit der in der OCI-Speicherung verwendeten Geheimnisse. Dazu gehört die Kennzeichnung der Geheimnisse, die {product_name} in nachgelagerten Clustern klont, und die Erzeugung eines Ereignisses, wenn das Löschen eines OCI-Artefakts zu einem Fehler führt.
+
+Weitere Einzelheiten finden Sie in der xref:how-tos-for-users/oci-storage.adoc[Dokumentation{product_name} ].
+
+=== Verbesserungen der Rückverfolgbarkeit
+
+{product_name} bescheinigt nun die Herkunft von Docker-Manifesten.
+(Patch von @thardeck, PR https://github.com/rancher/fleet/pull/3846[] #3846)
+
+== Fehlerbehebungen
+
+Statusaktualisierungen und die Handhabung des Lebenszyklus wurden erheblich verbessert:
+
+* Der GitRepo-Status ist nun stabiler, wenn mehrere Bundles nicht fertig sind.
+  (Beigetragen von @rbreddy, PR https://github.com/rancher/fleet/pull/3485[] #3485)
+* GitRepo-Statusaktualisierungen sind optimiert.
+  (PR https://github.com/rancher/fleet/pull/3604[#3604])
+* GitRepo-Abgleiche verzögern jetzt Aktualisierungen, um die Leistung bei schnellen Änderungen zu verbessern.
+  (PR https://github.com/rancher/fleet/pull/3558[#3558])
+* BundleDeployment-Statusaktualisierungen wurden optimiert.
+  (PR https://github.com/rancher/fleet/pull/3887[#3887])
+* Die Drifterkennung aktualisiert nicht mehr Ressourcen mit leeren Diffs.
+  (PR https://github.com/rancher/fleet/pull/3555[#3555])
+* {product_name} nutzt die neuesten Verbesserungen der Wrangler-Bereitschaftserkennung.
+  (PR https://github.com/rancher/fleet/pull/3853[#3853])
+* Nachgelagerte Agenten melden die Status wieder korrekt an die vorgelagerten Stellen.
+  (PR https://github.com/rancher/fleet/pull/3702[#3702])
+
+=== Verbesserungen im Lebenszyklus
+
+* Cluster-Ereignisfilter reduzieren die unnötige Erstellung von Bundle-Bereitstellungen.
+  (PR https://github.com/rancher/fleet/pull/3796[#3796])
+* {product_name} löscht nun veraltete Bundle-Bereitstellungen:
+** Nicht mehr gezielt.
+** GitRepo oder Bundle-Ziele geändert.
+  (PRs https://github.com/rancher/fleet/pull/3509[] #3509 und https://github.com/rancher/fleet/pull/3438[] #3438)
+
+=== CLI-Verbesserungen
+
+* {product_name} CLI liefert jetzt klarere Fehlermeldungen in Git-Jobs.
+  (PR https://github.com/rancher/fleet/pull/3559[#3559])
+* CLI verwendet den `controller-runtime` Client.
+  (PR https://github.com/rancher/fleet/pull/3670[#3670])
+
+=== Verbesserungen der Konfiguration
+
+* Konfigurationsaktualisierungen lösen jetzt selektiv Cluster-Importe aus:
+** Nur wenn sich relevante Felder ändern.
+** Nur wenn eine gültige `apiServerURL` existiert.
+  (PRs https://github.com/rancher/fleet/pull/3551[] #3551 und https://github.com/rancher/fleet/pull/3837[] #3837)
+* Die durch `options.Helm` verursachte Panik wurde behoben.
+  (PR https://github.com/rancher/fleet/pull/3567[#3567])
+* Das Erstellen eines GitRepo mit einer leeren Repo-URL ist nicht mehr erlaubt.
+  (PR https://github.com/rancher/fleet/pull/3582[#3582])
+* Leere Ignorieroptionen in BundleDeployments und HelmOps werden nun ausgelassen.
+  (PR https://github.com/rancher/fleet/pull/3842[#3842])
+
+=== Andere Verbesserungen
+
+* Informativere Fehler für fehlgeschlagene Diagramm-Downloads.
+  (PR https://github.com/rancher/fleet/pull/3593[#3593])
+* Die SSH-Schlüsselauthentifizierung für Helm-Diagramm-Downloads funktioniert wieder.
+  (PR https://github.com/rancher/fleet/pull/3670[#3670])
