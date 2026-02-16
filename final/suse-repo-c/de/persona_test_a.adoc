@@ -1,0 +1,30 @@
+= Schlüsselpersonen und ihre Rollen
+:revdate: 2025-05-30
+:page-revdate: {revdate}
+
+[cols="1,2,2", options="header"]
+|===
+|Persona |Zuständigkeiten |Wichtigste Vorteile
+
+|Plattform-Ingenieure
+a|* Einrichten und Verwalten der {product_name} Installation in verschiedenen Clustern.
+* Definieren und erzwingen Sie die Bereitstellung von Anwendungen und Richtlinien in mehreren Clustern.
+* Verwalten Sie die Konfigurationen von GitRepo und `fleet.yaml`.
+* Durchführung von clusterweiten Aktualisierungen und Rollbacks.
+a|* Zentralisierte Kontrolle über Cluster hinweg.
+* Verbesserte Standardisierung und Einhaltung von Vorschriften.
+
+|Anwendungsentwickler
+a|* Strukturierung von Helm-Anwendungsdiagrammen oder Manifesten in Git.
+* Definieren Sie Bereitstellungsziele und -umgebungen in `fleet.yaml`.
+* Überwachen Sie den Bereitstellungsstatus über die Benutzeroberfläche oder CLI.
+a|* GitOps-basierte Arbeitsabläufe.
+* Schnellere, automatisierte und konsistente Bereitstellungen in verschiedenen Umgebungen.
+
+|Sicherheitsbeauftragte
+a|* Definieren und Durchsetzen von Sicherheitsrichtlinien als Code.
+* Einsatz von Sicherheitstools und -konfigurationen.
+* Prüfung und Verwaltung der Sicherheitslage in allen Clustern.
+a|* Geringeres Risiko und zentralisiertes Compliance-Management.
+* Automatisierte, konsistente Sicherheitskonfiguration.
+|===
