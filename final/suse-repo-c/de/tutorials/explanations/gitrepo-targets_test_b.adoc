@@ -1,0 +1,199 @@
+= Zuordnung zu nachgelagerten Clustern
+:revdate: 2025-04-30
+:page-revdate: {revdate}
+
+ifeval::["{product}" == "fleet"]
+https://ranchermanager.docs.rancher.com/integrations-in-rancher/fleet[{product_name} in Rancher] ermöglicht es Benutzern, Cluster so zu verwalten, als wären sie ein einziger Cluster. Benutzer können Bundles, die aus Bereitstellungsmanifesten oder anderen Kubernetes-Ressourcen bestehen können, mithilfe der Gruppierungskonfiguration clusterübergreifend bereitstellen.
+
+endif::[]
+
+ifeval::["{product}" == "continuous-delivery"]
+https://documentation.suse.com/cloudnative/rancher-manager/latest/en/integrations/fleet/overview.html[{product_name} in Rancher] ermöglicht es Benutzern, Cluster so zu verwalten, als wären sie ein einziger Cluster. Benutzer können Bundles, die aus Bereitstellungsmanifesten oder anderen Kubernetes-Ressourcen bestehen können, mithilfe der Gruppierungskonfiguration clusterübergreifend bereitstellen.
+endif::[]
+[IMPORTANT]
+====
+
+*Nur Multicluster*:
+Dieser Ansatz gilt nur, wenn Sie {product_name} in einem Multi-Cluster-Stil ausführen. Wenn keine Ziele angegeben sind, d. h. bei Verwendung eines Single-Clusters, zielen die Bundles auf die Standard-Cluster-Gruppe.
+====
+
+
+Bei der Bereitstellung von `GitRepos` auf nachgelagerten Clustern müssen die Cluster einem Ziel zugeordnet werden.
+
+== Zielvorgaben definieren
+
+Die Bereitstellungsziele von `GitRepo` werden mit Hilfe des Feldes `spec.targets` auf Cluster oder Clustergruppen abgestimmt. Die YAML-Spezifikation lautet wie folgt.
+
+[,yaml]
+----
+kind: GitRepo
+apiVersion: fleet.cattle.io/v1alpha1
+metadata:
+  name: myrepo
+  namespace: clusters
+spec:
+  repo: https://github.com/rancher/fleet-examples
+  paths:
+  - simple
+
+  # Targets are evaluated in order and the first one to match is used. If
+  # no targets match then the evaluated cluster will not be deployed to.
+  targets:
+  # The name of target. This value is largely for display and logging.
+  # If not specified a default name of the format "target000" will be used
+  - name: prod
+    # A selector used to match clusters.  The structure is the standard
+    # metav1.LabelSelector format. If clusterGroupSelector or clusterGroup is specified,
+    # clusterSelector will be used only to further refine the selection after
+    # clusterGroupSelector and clusterGroup is evaluated.
+    clusterSelector:
+      matchLabels:
+        env: prod
+    # A selector used to match cluster groups.
+    clusterGroupSelector:
+      matchLabels:
+        region: us-east
+    # A specific clusterGroup by name that will be selected
+    clusterGroup: group1
+    # A specific cluster by name that will be selected
+    clusterName: cluster1
+----
+
+== Zielabgleich
+
+Alle Cluster und Clustergruppen, die sich im gleichen Namensraum wie `GitRepo` befinden, werden für alle Ziele ausgewertet.
+Wenn eines der Ziele mit dem Cluster übereinstimmt, wird die `GitRepo` auf dem nachgelagerten Cluster bereitgestellt. Wenn es keine Übereinstimmung gibt, wird die `GitRepo` nicht in diesem Cluster bereitgestellt.
+
+Für den Abgleich von Clustern gibt es drei Ansätze.
+Man kann Clusterselektoren, Clustergruppenselektoren oder einen expliziten Clustergruppennamen verwenden.  Alle Kriterien sind additiv, so dass die endgültige Übereinstimmung als "clusterSelector && clusterGroupSelector && clusterGroup" bewertet wird.  Wenn eines der drei Kriterien den Standardwert hat, wird es aus den Kriterien gestrichen.  Der Standardwert ist entweder null oder "".  Es ist wichtig zu wissen, dass der Wert `{}` für einen Selektor "alles abgleichen" bedeutet.
+
+[,yaml]
+----
+targets:
+  # Match everything
+  - clusterSelector: {}
+  # Selector ignored
+  - clusterSelector: null
+----
+
+Sie können auch Cluster nach Namen abgleichen:
+
+[,yaml]
+----
+targets:
+  - clusterName: fleetname
+----
+
+Wenn Sie {product_name} in Rancher verwenden, stellen Sie sicher, dass Sie den Namen der Ressource `clusters.fleet.cattle.io` angeben.
+
+== Standardziel
+
+Wenn für `GitRepo` kein Ziel festgelegt ist, wird der Standardzielwert verwendet.  Der Standardwert für die Ziele lautet wie folgt.
+
+[,yaml]
+----
+targets:
+- name: default
+  clusterGroup: default
+----
+
+Wenn Sie also einen Standardspeicherort für nicht konfigurierte GitRepos einrichten möchten, erstellen Sie einfach eine Clustergruppe mit dem Namen default und fügen Sie ihr Cluster hinzu.
+
+== Anpassungen pro Cluster
+
+[IMPORTANT]
+====
+
+Die `targets:` in der Ressource `GitRepo` wählt Cluster für die Bereitstellung aus. Die `targetCustomizations:` in `fleet.yaml` setzen nur die Werte des Helms außer Kraft und ändern nicht die Zieleinstellung.
+====
+
+
+Um zu demonstrieren, wie Kubernetes-Manifeste über verschiedene Cluster hinweg mit Anpassungen unter {product_name} bereitgestellt werden können, verwenden wir https://github.com/rancher/fleet-examples/blob/master/multi-cluster/helm/fleet.yaml[multi-cluster/helm/fleet.yaml].
+
+*Situation:* Der Benutzer hat drei Cluster mit drei verschiedenen Bezeichnungen: `env=dev`, `env=test`, und `env=prod`. Der Benutzer möchte eine Frontend-Anwendung mit einer Backend-Datenbank in diesen Clustern bereitstellen.
+
+*Erwartetes Verhalten:*
+
+* Nach der Bereitstellung auf dem Cluster `dev` ist die Datenbankreplikation nicht aktiviert.
+* Nach der Bereitstellung auf dem Cluster `test` ist die Datenbankreplikation aktiviert.
+* Nach der Bereitstellung auf dem Cluster `prod` ist die Datenbankreplikation aktiviert und die Load Balancer-Dienste sind verfügbar.
+
+*Der Vorteil von {product_name}:*
+
+Anstatt die Anwendung auf jedem einzelnen Cluster bereitzustellen, ermöglicht {product_name} die Bereitstellung auf allen Clustern, indem Sie diese Schritte befolgen:
+
+. Setzen Sie gitRepo `https://github.com/rancher/fleet-examples.git` ein und geben Sie den Pfad `multi-cluster/helm` an.
+. Unter `multi-cluster/helm` wird ein Helm-Diagramm den Frontend-App-Dienst und den Backend-Datenbankdienst bereitstellen.
+. Die folgende Regel wird in `fleet.yaml` definiert:
+
+----
+targetCustomizations:
+- name: dev
+  helm:
+    values:
+      replication: false
+  clusterSelector:
+    matchLabels:
+      env: dev
+
+- name: test
+  helm:
+    values:
+      replicas: 3
+  clusterSelector:
+    matchLabels:
+      env: test
+
+- name: prod
+  helm:
+    values:
+      serviceType: LoadBalancer
+      replicas: 3
+  clusterSelector:
+    matchLabels:
+      env: prod
+----
+
+*Ergebnis:*
+
+{product_name} wird das Helm-Diagramm mit Ihrer angepassten `values.yaml` auf den verschiedenen Clustern bereitgestellt.
+
+NOTE: Das Konfigurationsmanagement ist nicht auf Bereitstellungen beschränkt, sondern kann auf ein allgemeines Konfigurationsmanagement ausgeweitet werden. {product_name} ist in der Lage, das Konfigurationsmanagement durch Anpassungen automatisch auf eine beliebige Anzahl von Clustern anzuwenden.
+
+=== Unterstützte Anpassungen
+
+* xref:reference/ref-crds.adoc#_bundledeploymentoptions[DefaultNamespace]
+* xref:reference/ref-crds.adoc#_bundledeploymentoptions[ForceSyncGeneration]
+* xref:reference/ref-crds.adoc#_bundledeploymentoptions[KeepResources]
+* xref:reference/ref-crds.adoc#_bundledeploymentoptions[ServiceAccount]
+* xref:reference/ref-crds.adoc#_bundledeploymentoptions[TargetNamespace]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.Atomic]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.Chart]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.DisablePreProcess]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.Force]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.ReleaseName]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.Repo]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.TakeOwnership]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.TimeoutSeconds]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.ValuesFrom]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.Values]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.Version]
++
+
+[CAUTION]
+.wichtige Informationen
+====
+Das Überschreiben der Version eines Helm-Diagramms über Zielanpassungen führt zu Bundles, die _alle_ Versionen, d. h. die Standardversion und die benutzerdefinierte(n) Version(en) des Diagramms, enthalten, um alle Cluster zu berücksichtigen. Dies wiederum bedeutet, dass {product_name} größere Pakete einsetzen wird.
++
+Da {product_name} Bundles über etcd speichert, kann dies auf einigen Clustern zu Problemen führen, da die resultierenden Bundle-Größen die von etcd konfigurierte maximale Blob-Größe überschreiten können. Weitere Einzelheiten finden Sie unter https://github.com/rancher/fleet/issues/1650[in dieser Ausgabe].
+====
+
+
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.WaitForJobs]
+* xref:reference/ref-crds.adoc#_kustomizeoptions[Kustomize.Dir]
+* xref:reference/ref-crds.adoc#_yamloptions[YAML.Overlays]
+* xref:reference/ref-crds.adoc#_diffoptions[Diff.ComparePatches]
+
+== Zusätzliche Beispiele
+
+Beispiele für die Verwendung von rohem Kubernetes-YAML, Helm-Diagrammen, Kustomize und Kombinationen der drei sind im https://github.com/rancher/fleet-examples/[{product_name} Examples Repo zu] finden.
