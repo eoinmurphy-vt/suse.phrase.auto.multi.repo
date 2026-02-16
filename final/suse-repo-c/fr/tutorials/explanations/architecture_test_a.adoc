@@ -1,0 +1,29 @@
+= Architecture
+:revdate: 2025-04-30
+:page-revdate: {revdate}
+
+{product_name} a deux composantes principales. Le contrôleur {product_name} et les agents de la grappe. Ces composants fonctionnent selon un modèle de traction en deux étapes. Le contrôleur {product_name} tire ses données de git et les agents du cluster tirent leurs données du contrôleur {product_name}.
+
+== {product_name} Contrôleur
+
+Le contrôleur {product_name} est un ensemble de contrôleurs Kubernetes fonctionnant dans n'importe quel cluster Kubernetes standard.  La seule API exposée par le contrôleur {product_name} est l'API Kubernetes, il n'y a pas d'API personnalisée pour le contrôleur de flotte.
+
+== Agents des clusters
+
+Un agent de cluster fonctionne dans chaque cluster et est responsable de la communication avec le contrôleur {product_name}.
+La seule communication entre la grappe et le contrôleur {product_name} se fait par cet agent et toutes les communications vont de la grappe gérée au contrôleur {product_name}. Le contrôleur de flotte n'initie pas de connexions avec les clusters en aval. Cela signifie que les clusters gérés peuvent fonctionner dans des réseaux privés et derrière des NAT. La seule exigence est que l'agent de cluster soit capable de communiquer avec l'API Kubernetes du cluster qui exécute le contrôleur {product_name}. La seule exception à cette règle est l'utilisation du flux d'enregistrement des clusters xref:how-tos-for-operators/cluster-registration.adoc#_manager_initiated[initié par le gestionnaire]. Il ne s'agit pas d'une obligation, mais d'un modèle facultatif.
+
+Les agents de la grappe ne sont pas supposés avoir une connexion "toujours active". Ils reprendront leurs activités dès qu'ils pourront se connecter. Les améliorations futures ajouteront probablement la possibilité de programmer les heures auxquelles l'agent se connecte, mais pour l'instant, il tente toujours de se connecter.
+
+== Sécurité
+
+Le contrôleur {product_name} crée dynamiquement des comptes de service, gère leur RBAC et donne ensuite les jetons aux clusters en aval. Les grappes sont enregistrées par des jetons d'enregistrement de grappe qui peuvent expirer.
+Le jeton d'enregistrement de la grappe n'est utilisé que pendant la procédure d'enregistrement pour générer un justificatif d'identité spécifique à cette grappe. Une fois l'identifiant du cluster établi, le cluster "oublie" le jeton d'enregistrement du cluster.
+
+Les comptes de service attribués aux clusters disposent uniquement de privilèges pour répertorier `BundleDeployment` dans l'espace de noms créé spécifiquement pour ce cluster. Il peut également mettre à jour la sous-ressource `status` de `BundleDeployment` et la sous-ressource `status`de sa ressource `Cluster`.
+
+== Aperçu des composants
+
+Une vue d'ensemble des composants et de leur interaction à un niveau élevé.
+
+image::FleetComponents.svg[Statique, 600]

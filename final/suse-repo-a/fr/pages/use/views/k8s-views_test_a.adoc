@@ -1,0 +1,28 @@
+= Vues de Kubernetes
+:revdate: 2025-07-10
+:page-revdate: {revdate}
+:description: SUSE Observability
+
+== Vue d'ensemble
+
+SUSE Observability possède une connaissance approfondie de Kubernetes et de ses composants. Après l'installation de l'agent SUSE Observability dans votre cluster, il détectera et visualisera ensuite automatiquement la topologie de vos applications Kubernetes. Cela inclut les ressources Kubernetes qui composent votre application, telles que les déploiements, les pods, les services et les entrées. Il détectera et visualisera également automatiquement la topologie de votre infrastructure Kubernetes qui compose votre cluster, comme les nœuds, les espaces de noms et les volumes persistants.
+
+SUSE Observability dispose de pages dédiées aux aperçus et aux points forts des ressources natives Kubernetes suivantes :
+
+image::k8s/k8s-menu.png[Vues de Kubernetes]
+
+Toutes les autres ressources Kubernetes sont reconnues et visualisées dans les vues topologiques.
+
+== Pages de présentation
+
+Les pages de présentation fournissent un aperçu de haut niveau des ressources Kubernetes spécifiques dans votre environnement. Ces aperçus mettent en évidence les informations les plus importantes concernant la ressource, notamment son état de santé, son âge, son espace de noms, son cluster et bien d'autres choses encore.
+
+image::k8s/k8s-service-overview.png[Pages de présentation]
+
+À partir d'une page d'aperçu, vous pouvez cliquer sur l'une des ressources Kubernetes pour naviguer vers la page des faits saillants de cette ressource.
+
+== Pages des faits marquants
+
+La page des faits saillants présente une vue d'ensemble des informations les plus importantes concernant une ressource Kubernetes spécifique. Vous pouvez y voir l'état de la ressource, les moniteurs actifs sur la ressource et les événements qui se sont produits sur la ressource. Nous affichons également les paramètres clés de la ressource.
+
+image::k8s/k8s-pod-highlights.png[Pages des faits marquants]
