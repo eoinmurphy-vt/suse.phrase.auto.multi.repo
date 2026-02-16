@@ -21,8 +21,8 @@ permissions:
 
 jobs:
   preprocess:
-    # Safety Check: Only run if the Sync was actually successful
-    if: ${{ github.event.workflow_run.conclusion == 'success' }} || ${{ github.event_name == 'workflow_dispatch' }}
+    # Safety Check: Only run if the Sync was actually successful OR if triggered manually
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     outputs:
       changed_files: ${{ steps.changed.outputs.changed_files }}
