@@ -1,0 +1,32 @@
+= 構造を見る
+:revdate: 2025-07-10
+:page-revdate: {revdate}
+:description: SUSE Observability
+
+== 概要
+
+SUSE Observabilityのビューを使用すると、IT環境のサブセットを監視および検査できます。ビューの構造は、そのサブセット（ビュー）のデータをフィルタリングし、効率的な方法で視覚化するように調整されています。
+
+=== フィルター
+
+ビューUIの右上にある*Filters*メニューでは、ビューに表示されるコンポーネント（トポロジー）、イベント、トレースをフィルタリングすることができます。フィルタを適用すると、ビュー内のすべてのパースペクティブのコンテンツに影響します。
+
+* xref:/use/views/k8s-filters.adoc[フィルター]- ビュー内のコンポーネント（トポロジー）、イベント、トレースをフィルターします。
+
+=== 展望
+
+ビューの*視点は*、ビュー UI の左上隅にタブとして表示され、異なるレンズを通してビュー内の全データを視覚化することができます：
+
+* xref:/use/views/k8s-overview-perspective.adoc[オーバービューの視点か] xref:/use/views/k8s-highlights-perspective.adoc[ハイライトの視点か]- 視野のタイプによる
+* xref:/use/views/k8s-topology-perspective.adoc[トポロジー・パースペクティブ]- ビュー・コンポーネントの依存関係マップ
+* xref:/use/views/k8s-events-perspective.adoc[イベント・パースペクティブ]- トポロジー上で起きているすべてのイベント
+* xref:/use/views/k8s-metrics-perspective.adoc[指標の視点]- 最も関連性の高いコンポーネントの主要指標
+* xref:/use/views/k8s-traces-perspective.adoc[Traces perspective]- トポロジー上で実行されているトレース情報
+
+[NOTE]
+====
+*すべてのパースペクティブは*、xref:/use/stackstate-ui/k8sTs-timeline-time-travel.adoc[タイムラインの]構成に基づいてコンテンツを更新する。
+====
+
+
+image::k8s/k8s-overview-perspective-cards-layout.png[カード・レイアウト]
