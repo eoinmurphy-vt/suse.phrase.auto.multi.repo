@@ -1,0 +1,32 @@
+= Ver estructura
+:revdate: 2025-07-10
+:page-revdate: {revdate}
+:description: Observabilidad de SUSE
+
+== Visión general
+
+Una vista en SUSE Observability le permite supervisar e inspeccionar un subconjunto de su entorno de TI. La estructura de una vista está diseñada para filtrar y visualizar los datos de ese subconjunto (vista) de forma eficaz.
+
+=== Filtros
+
+El menú *Filtros*, situado en la esquina superior derecha de la interfaz de usuario de la vista, permite filtrar los componentes (topología), eventos y trazas mostrados en una vista. Una vez aplicados, los filtros afectarán al contenido de todas las perspectivas de una vista.
+
+* xref:/use/views/k8s-filters.adoc[Filtros] - Filtre los componentes (topología), eventos y trazas en su vista.
+
+=== Perspectivas
+
+Las *Perspectivas* de una vista se muestran como pestañas en la esquina superior izquierda de la interfaz de usuario de la vista y permiten visualizar todos los datos de una vista a través de diferentes lentes:
+
+* Perspectiva xref:/use/views/k8s-overview-perspective.adoc[general] o xref:/use/views/k8s-highlights-perspective.adoc[Perspectiva destacada]: según el tipo de vista en el que te encuentres
+* xref:/use/views/k8s-topology-perspective.adoc[Perspectiva topológica]: el mapa de dependencias de los componentes de la vista
+* xref:/use/views/k8s-events-perspective.adoc[Perspectiva de eventos]: todos los eventos que se producen en la topología.
+* xref:/use/views/k8s-metrics-perspective.adoc[Perspectiva métrica]: métricas clave para los componentes más relevantes.
+* xref:/use/views/k8s-traces-perspective.adoc[Perspectiva de trazas]: la información de trazas que se ejecuta en la topología.
+
+[NOTE]
+====
+*Todas las perspectivas* actualizarán su contenido en función de la configuración de xref:/use/stackstate-ui/k8sTs-timeline-time-travel.adoc[la línea de tiempo].
+====
+
+
+image::k8s/k8s-overview-perspective-cards-layout.png[Presentación de las tarjetas]
