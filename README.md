@@ -142,9 +142,7 @@ If these variables are not set, the workflow will use the Default Values listed 
 | **`FINAL_DIR`**                 | final               | The folder where the final, cleaned AsciiDoc files are saved.                                                    |
 | **`PHRASE_INCOMING_BRANCH`**    | phrase-incoming     | The specific Branch where Phrase TMS commits completed translations.                                             |
 | **`CURRENT_REPO_NAME`**         | (Your Repo)         | The owner/repo string of this repository (e.g., my-org/docs-connector). Used for dispatch triggers.              |
-| **`SUSE_CLIENT_CONFIGURATION`** | (JSON content)      | The configuration settings used to connect to client repos (id, url, branch, schedule, watch_path, target_path). |
-
-***
+| **`SUSE_CLIENT_CONFIGURATION`** | (JSON content)      | The configuration settings used to connect to client repos (see below). |
 
 **Example: `SUSE_CLIENT_CONFIGURATION`**
 
@@ -171,8 +169,6 @@ This variable stores the client‑specific repository configuration in JSON form
 | **schedule**     | How often this repo should be pulled (`hourly`, `daily`, etc.). |
 | **watch\_path**  | Path within the client repo to watch for changes.               |
 | **target\_path** | Path in this repository where processed files are saved.        |
-
-***
 
 ---
 
