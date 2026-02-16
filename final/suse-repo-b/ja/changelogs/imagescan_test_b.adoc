@@ -1,0 +1,130 @@
+= イメージスキャンを使用してコンテナイメージ参照を更新する
+:revdate: 2025-04-30
+:page-revdate: {revdate}
+
+fleet でのイメージスキャンは、手動でマニフェストを更新することなく、イメージリポジトリをスキャンして必要なイメージを取得し、git リポジトリを更新することができます。
+
+[CAUTION]
+====
+
+この機能は実験的なものである。
+====
+
+
+`fleet.yaml` 、以下のセクションを追加する。
+
+[,yaml]
+----
+imageScans:
+# specify the policy to retrieve images, can be semver or alphabetical order
+- policy:
+    # if range is specified, it will take the latest image according to semver order in the range
+    # for more details on how to use semver, see https://github.com/Masterminds/semver
+    semver:
+      range: "*"
+    # can use ascending or descending order
+    alphabetical:
+      order: asc
+
+  # specify images to scan
+  image: "your.registry.com/repo/image"
+
+  # Specify the tag name, it has to be unique in the same bundle
+  tagName: test-scan
+
+  # specify secret to pull image if in private registry
+  secretRef:
+    name: dockerhub-secret
+
+  # Specify the scan interval
+  interval: 5m
+----
+
+[IMPORTANT]
+====
+
+fleet.yamlで複数のイメージスキャンを作成できる。
+====
+
+
+[NOTE]
+====
+
+Semverは、範囲定義でプレリリースバージョンが明示的に使用されていない限り、プレリリースバージョン（例えば0.0.1-10）を無視します。
+例えば、"*"の範囲はプレリリースを無視し、">= 0.0.1-10 "はプレリリースを考慮する。
+====
+
+
+マニフェストファイルに移動し、置き換えたいフィールドを更新します。例えば、こうだ：
+
+[,yaml]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-slave
+spec:
+  selector:
+    matchLabels:
+      app: redis
+      role: slave
+      tier: backend
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: redis
+        role: slave
+        tier: backend
+    spec:
+      containers:
+      - name: slave
+        image: <image>:<tag> # {"$imagescan": "test-scan"}
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 6379
+----
+
+[NOTE]
+====
+
+参照できるtagNameの形式は複数ある。例えば
+
+`{"$imagescan": "test-scan"}`:完全な画像名を使用(foo/bar:tag)
+
+`{"$imagescan": "test-scan:name"}`:タグ(foo/bar)のない画像名のみを使用する。
+
+`{"$imagescan": "test-scan:tag"}`:画像タグのみ使用
+
+`{"$imagescan": "test-scan:digest"}`:ダイジェスト付きの完全な画像名を使用(foo/bar:tag@sha256...)
+====
+
+
+fleet.yamlを含むGitRepoを作成する。
+
+[,yaml]
+----
+kind: GitRepo
+apiVersion: fleet.cattle.io/v1alpha1
+metadata:
+  name: my-repo
+  namespace: fleet-local
+spec:
+  # change this to be your own repo
+  repo: https://github.com/rancher/fleet-examples
+  # define how long it will sync all the images and decide to apply change
+  imageScanInterval: 5m
+  # user must properly provide a secret that have write access to git repository
+  clientSecretName: secret
+  # specify the commit pattern
+  imageScanCommit:
+    authorName: foo
+    authorEmail: foo@bar.com
+    messageTemplate: "update image"
+----
+
+新しい画像タグ、例えば`<image>:<new-tag>` を押してみてください。しばらく待つと、git リポジトリに新しいコミットがプッシュされ、deployment.yaml のタグが変更されるはずです。
+git リポジトリに変更が加えられると、fleet はその変更を読み込んでクラスタにデプロイします。
