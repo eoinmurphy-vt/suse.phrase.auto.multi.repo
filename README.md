@@ -146,7 +146,7 @@ If these variables are not set, the workflow will use the Default Values listed 
 
 ***
 
-### Example: `SUSE_CLIENT_CONFIGURATION`
+**Example: `SUSE_CLIENT_CONFIGURATION`**
 
 This variable stores the client‑specific repository configuration in JSON format:
 
