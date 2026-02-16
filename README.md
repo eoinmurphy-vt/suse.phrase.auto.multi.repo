@@ -144,6 +144,36 @@ If these variables are not set, the workflow will use the Default Values listed 
 | **`CURRENT_REPO_NAME`**         | (Your Repo)         | The owner/repo string of this repository (e.g., my-org/docs-connector). Used for dispatch triggers.              |
 | **`SUSE_CLIENT_CONFIGURATION`** | (JSON content)      | The configuration settings used to connect to client repos (id, url, branch, schedule, watch_path, target_path). |
 
+***
+
+### Example: `SUSE_CLIENT_CONFIGURATION`
+
+This variable stores the client‑specific repository configuration in JSON format:
+
+```json
+{
+  "id": "suse-repo-a",
+  "url": "suse.client/suse.phrase.auto.repo.one",
+  "branch": "main",
+  "schedule": "hourly",
+  "watch_path": "docs/modules/en/",
+  "target_path": "docs/modules/"
+}
+```
+
+**Field Descriptions**
+
+| Field            | Meaning                                                         |
+| ---------------- | --------------------------------------------------------------- |
+| **id**           | Unique identifier for the client configuration.                 |
+| **url**          | GitHub repository path in `owner/repo` format.                  |
+| **branch**       | The branch monitored for updates.                               |
+| **schedule**     | How often this repo should be pulled (`hourly`, `daily`, etc.). |
+| **watch\_path**  | Path within the client repo to watch for changes.               |
+| **target\_path** | Path in this repository where processed files are saved.        |
+
+***
+
 ---
 
 ### ⚠️ Important Limitations
@@ -156,12 +186,13 @@ If these variables are not set, the workflow will use the Default Values listed 
 
 ### 🧩 Technical Notes
 
-* Both stages run via [GitHub Actions](https://github.com/features/actions).
+* Stages run via [GitHub Actions](https://github.com/features/actions).
 * Scripts used:
 
   * `preprocess_adoc.py`
   * `postprocess_adoc.py`
 * Encoding: **Unix-compatible UTF-8**
+* Languages: **de-DE, es-ES, fr-FR, ja-JP, pt-BR, zh-CN**
 
 ---
 
