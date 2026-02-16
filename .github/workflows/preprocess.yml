@@ -1,13 +1,13 @@
 name: Preprocess AsciiDoc Files
 
 on:
-  # FIX: Trigger when the Sync workflow finishes successfully
+  # Trigger when the Sync workflow finishes successfully
   workflow_run:
     workflows: ["Sync Changes from External Repos"]
     types:
       - completed
   
-  # Keep manual trigger for testing
+  # Manual trigger
   workflow_dispatch:
     inputs:
       process_all:
@@ -31,7 +31,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Crucial for calculating diffs
+          fetch-depth: 0 # For calculating diffs
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -46,8 +46,6 @@ jobs:
         env:
           DIR: ${{ vars.CONTENT_DIR || 'source' }}
           FORCE_ALL: ${{ inputs.process_all }}
-          # workflow_run doesn't provide easy access to "before" commit, 
-          # so we stick to our robust "Last Successful Run" logic.
         run: |
           echo "Triggered by: ${{ github.event_name }}"
           
@@ -67,7 +65,7 @@ jobs:
               echo "✅ Last Preprocess Run found at: $LAST_RUN_COMMIT"
               echo "   Calculating changes from $LAST_RUN_COMMIT to HEAD..."
               
-              # Diff against the last time we successfully preprocessed
+              # Diff against the last time successfully preprocessed
               git diff --name-only --diff-filter=AM "$LAST_RUN_COMMIT" HEAD -- "$DIR/" | grep '\.adoc$' > changed_files.txt || true
             fi
           fi
