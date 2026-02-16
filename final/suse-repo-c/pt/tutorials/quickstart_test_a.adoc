@@ -1,0 +1,94 @@
+:doctype: book
+
+= Início rápido
+:revdate: 2025-04-30
+:page-revdate: {revdate}
+
+image::single-cluster.png[]
+
+Quem precisa de documentação, vamos apenas executar essa coisa!
+
+== Instalar
+
+{product_name} é distribuído como um gráfico do Helm. O Helm 3 é uma CLI, não tem nenhum componente do lado do servidor e seu uso é bastante simples. Para instalar o Helm 3 CLI, siga as https://helm.sh/docs/intro/install[instruções de instalação oficial do site].
+
+[CAUTION]
+.{product_name} em Rancheiro
+====
+O Rancher tem gráficos de leme separados para {product_name} e usa um repositório diferente.
+====
+
+
+[tabs]
+====
+Linux/Mac::
++
+[source,bash]
+----
+brew install helm
+helm repo add fleet https://rancher.github.io/fleet-helm-charts/
+----
+
+Windows::
++
+[source,bash]
+----
+choco install kubernetes-helm
+helm repo add fleet https://rancher.github.io/fleet-helm-charts/
+----
+====
+
+Instale os gráficos do {product_name} Helm (há dois porque separamos os CRDs para maior flexibilidade).
+
+[source,bash]
+----
+helm -n cattle-fleet-system install --create-namespace --wait fleet-crd \
+    fleet/fleet-crd
+helm -n cattle-fleet-system install --create-namespace --wait fleet \
+    fleet/fleet
+----
+
+== Adicionar um Git Repo ao Watch
+
+Altere `spec.repo` para o repositório git de sua preferência.  Os arquivos de manifesto do Kubernetes que devem ser implantados devem estar em `/manifests` em seu repositório.
+
+[source,bash]
+----
+cat > example.yaml << "EOF"
+apiVersion: fleet.cattle.io/v1alpha1
+kind: GitRepo
+metadata:
+  name: sample
+  # This namespace is special and auto-wired to deploy to the local cluster
+  namespace: fleet-local
+spec:
+  # Everything from this repo will be run in this cluster. You trust me right?
+  repo: "https://github.com/rancher/fleet-examples"
+  paths:
+  - simple
+EOF
+
+kubectl apply -f example.yaml
+----
+
+== Obter status
+
+Obter o status do que a frota está fazendo
+
+[source,shell]
+----
+kubectl -n fleet-local get fleet
+----
+
+Você deverá ver algo como isto sendo criado em seu cluster.
+
+----
+kubectl get deploy frontend
+----
+
+----
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+frontend   3/3     3            3           116m
+----
+
+Aproveite e leia os xref:index.adoc[documentos].
