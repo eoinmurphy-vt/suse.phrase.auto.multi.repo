@@ -1,0 +1,111 @@
+= v0.13.0
+:revdate: 2025-07-23
+:page-revdate: {revdate}
+:page-date: 2025-07-23 15:09:14 +0000 UTC
+
+*Lançado em 2025-07-23 15:09:14 +0000 UTC por `github-actions[bot]`.*
+
+== Descrição
+
+== Mudanças notáveis
+
+* O HelmOps e o armazenamento OCI agora são totalmente compatíveis e não são mais experimentais.
+* Rastreabilidade aprimorada para imagens construídas.
+* Atualizações de status de recursos mais precisas e leves.
+
+== Adições
+
+* {product_name} suporta um novo método de varredura de pacote orientado pelo usuário para maior flexibilidade. O método de varredura anterior continua sendo suportado. Consulte xref:explanations/gitrepo-content.adoc#_alternative_scan_explicitly_defined_by_the_user[a documentação], com a contribuição de @0xavi0, PR https://github.com/rancher/fleet/pull/3480[] #3480.
+* Ao usar o SSH para apontar para um repositório Git, o {product_name} verifica as chaves do host por padrão, rejeitando tentativas de conexão com hosts desconhecidos. xref:/how-tos-for-users/gitrepo-add.adoc[Hosts conhecidos] por https://github.com/weyfonk[PR#3523] @weyfonk em link:https://github.com/rancher/fleet/issues/3523[].
+* As contagens de réplicas agora são configuráveis para controladores e agentes. Consulte xref:how-tos-for-operators/installation.adoc#_controller_and_agent_replicas[a documentação].
+  (Contribuição de @p-se, PR https://github.com/rancher/fleet/pull/3457[] #3457)
+* {product_name} agora pode usar um segredo de webhook separado para cada GitRepo. Consulte xref:how-tos-for-users/webhook.adoc#option-2-configure-secret[a documentação].
+  (Contribuição de @0xavi0, PR https://github.com/rancher/fleet/pull/3490[] #3490)
+* {product_name} Os gráficos agora suportam rótulos e anotações adicionais, que se propagam para as implantações do controlador.
+  (Contribuição de @0xavi0 e @p-se, PRs https://github.com/rancher/fleet/pull/3531[] #3531 e https://github.com/rancher/fleet/pull/3664[] #3664)
+* A eleição do líder do agente agora é configurável. Veja o https://github.com/rancher/fleet/blob/main/charts/fleet/values.yaml#L135-L138[exemplo].
+  (Contribuição de @p-se, PR https://github.com/rancher/fleet/pull/3463[] #3463)
+* A migração da conta de serviço antiga foi removida. (Contribuição de @weyfonk, PR https://github.com/rancher/fleet/pull/3601[] nº 3601)
+* {product_name} não calcula mais as chaves de recursos nos status dos pacotes. (Contribuição de @manno, PR https://github.com/rancher/fleet/pull/3681[] #3681)
+* {product_name} adiciona novas métricas do GitJob. Consulte xref:how-tos-for-users/observability.adoc#_metrics[a documentação].
+  (Contribuição de @p-se, PR https://github.com/rancher/fleet/pull/3649[] #3649)
+* Os agentes agora podem ignorar clusters usando um rótulo. (Contribuição de @manno, PR https://github.com/rancher/fleet/pull/3744[] #3744)
+
+=== HelmOps
+
+O HelmOps não é mais experimental. Os recursos do`HelmOp` (renomeados de `HelmApp`) agora são compatíveis:
+
+* Pesquisando repositórios do Helm
+* Restrições semânticas de controle de versão (consulte https://github.com/rancher/fleet/issues/3862[esse problema conhecido] para gráficos OCI)
+* Prevenção de colisões de nomes de pacotes entre os pacotes do GitOps e do HelmOps
+* Instalação de gráficos do Helm no modo TLS estrito
+
+As métricas e os status do cluster agora incluem dados do HelmOps. Para obter mais informações, consulte a xref:how-tos-for-users/helm-ops.adoc[documentação do site{product_name} ].
+
+=== Armazenamento OCI
+
+O armazenamento OCI não é mais experimental e está ativado por padrão, embora os pacotes não o utilizem por padrão. Ele ainda pode ser desativado definindo `OCI_STORAGE=false` em `extraEnv` ao instalar {product_name}.
+
+Ele também oferece suporte à coleta de lixo com base no melhor esforço, bem como à rastreabilidade aprimorada dos segredos usados no armazenamento da OCI. Isso inclui rotular os segredos que {product_name} clonam para clusters downstream e gerar um evento se a exclusão de um artefato OCI resultar em um erro.
+
+Consulte xref:how-tos-for-users/oci-storage.adoc[a documentação do site{product_name} ] para obter mais detalhes.
+
+=== Melhorias na rastreabilidade
+
+{product_name} agora atesta a procedência dos manifestos do Docker.
+(Correção feita por @thardeck, PR https://github.com/rancher/fleet/pull/3846[] #3846)
+
+== Correções de bugs
+
+As atualizações de status e o tratamento do ciclo de vida receberam grandes aprimoramentos:
+
+* Os status do GitRepo agora são mais estáveis quando vários pacotes não estão prontos.
+  (Contribuição de @rbreddy, PR https://github.com/rancher/fleet/pull/3485[] nº 3485)
+* As atualizações de status do GitRepo foram otimizadas.
+  (PR https://github.com/rancher/fleet/pull/3604[#3604])
+* As reconciliações do GitRepo agora atrasam as atualizações para melhorar o desempenho durante mudanças rápidas.
+  (PR https://github.com/rancher/fleet/pull/3558[#3558])
+* As atualizações de status do BundleDeployment foram otimizadas.
+  (PR https://github.com/rancher/fleet/pull/3887[#3887])
+* A detecção de desvios não atualiza mais os recursos com diffs vazios.
+  (PR https://github.com/rancher/fleet/pull/3555[#3555])
+* {product_name} usa os mais recentes aprimoramentos de detecção de prontidão do Wrangler.
+  (PR https://github.com/rancher/fleet/pull/3853[#3853])
+* Os agentes downstream relatam corretamente os status upstream novamente.
+  (PR https://github.com/rancher/fleet/pull/3702[#3702])
+
+=== Melhorias no ciclo de vida
+
+* Os filtros de eventos de cluster reduzem a criação desnecessária de implementações de pacotes.
+  (PR https://github.com/rancher/fleet/pull/3796[#3796])
+* {product_name} agora exclui implantações de pacotes obsoletos:
+** Não mais direcionado.
+** Os alvos do GitRepo ou do pacote foram alterados.
+  (PRs https://github.com/rancher/fleet/pull/3509[] #3509 e https://github.com/rancher/fleet/pull/3438[] #3438)
+
+=== Melhorias na CLI
+
+* {product_name} A CLI agora fornece mensagens de erro mais claras nos trabalhos do git.
+  (PR https://github.com/rancher/fleet/pull/3559[#3559])
+* A CLI usa o cliente `controller-runtime`.
+  (PR https://github.com/rancher/fleet/pull/3670[#3670])
+
+=== Melhorias na configuração
+
+* As atualizações de configuração agora acionam seletivamente as importações de cluster:
+** Somente quando os campos relevantes forem alterados.
+** Somente quando houver um `apiServerURL` válido.
+  (PRs https://github.com/rancher/fleet/pull/3551[] #3551 e https://github.com/rancher/fleet/pull/3837[] #3837)
+* Foi corrigido o pânico causado pelo site `options.Helm`.
+  (PR https://github.com/rancher/fleet/pull/3567[#3567])
+* Não é mais permitido criar um GitRepo com uma URL de repositório vazia.
+  (PR https://github.com/rancher/fleet/pull/3582[#3582])
+* As opções de ignorar vazias em BundleDeployments e HelmOps agora são omitidas.
+  (PR https://github.com/rancher/fleet/pull/3842[#3842])
+
+=== Outras melhorias
+
+* Erros mais informativos para downloads de gráficos com falha.
+  (PR https://github.com/rancher/fleet/pull/3593[#3593])
+* A autenticação de chave SSH para downloads de gráficos do Helm funciona novamente.
+  (PR https://github.com/rancher/fleet/pull/3670[#3670])
