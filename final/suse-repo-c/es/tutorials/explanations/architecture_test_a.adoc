@@ -1,0 +1,29 @@
+= Arquitectura
+:revdate: 2025-04-30
+:page-revdate: {revdate}
+
+{product_name} tiene dos componentes principales. El controlador {product_name} y los agentes del cluster. Estos componentes funcionan en un modelo pull de dos etapas. El controlador {product_name} tirará de git y los agentes del cluster tirarán del controlador {product_name}.
+
+== {product_name} Controlador
+
+El controlador {product_name} es un conjunto de controladores Kubernetes que se ejecutan en cualquier clúster Kubernetes estándar.  La única API expuesta por el controlador {product_name} es la API de Kubernetes, no existe una API personalizada para el controlador de flota.
+
+== Agentes Cluster
+
+En cada clúster se ejecuta un agente de clúster que se encarga de comunicarse con el controlador {product_name}.
+La única comunicación desde el cluster al controlador {product_name} se realiza a través de este agente y toda la comunicación va desde el cluster gestionado al controlador {product_name}. El controlador de flota no inicia las conexiones con los clusters aguas abajo. Esto significa que los clusters gestionados pueden funcionar en redes privadas y detrás de NATs. El único requisito es que el agente de clúster sea capaz de comunicarse con la API de Kubernetes del clúster que ejecuta el controlador {product_name}. La única excepción es si se utiliza el flujo de registro de clústeres xref:how-tos-for-operators/cluster-registration.adoc#_manager_initiated[iniciado por el gestor]. No es obligatorio, sino opcional.
+
+No se supone que los agentes del clúster tengan una conexión "siempre activa". Reanudarán su funcionamiento en cuanto puedan conectarse. Es probable que en futuras mejoras se añada la posibilidad de programar las horas en las que el agente se registra, ya que ahora mismo siempre intentará conectarse.
+
+== Seguridad
+
+El controlador {product_name} crea dinámicamente cuentas de servicio, gestiona su RBAC y, a continuación, entrega los tokens a los clusters descendentes. Los clústeres se registran mediante fichas de registro de clústeres que pueden caducar.
+El token de registro del clúster sólo se utiliza durante el proceso de registro para generar una credencial específica para ese clúster. Una vez establecida la credencial del clúster, éste "olvida" el token de registro del clúster.
+
+Las cuentas de servicio asignadas a los clústeres sólo tienen privilegios para listar `BundleDeployment` en el espacio de nombres creado específicamente para ese clúster. También puede actualizar el subrecurso `status` de `BundleDeployment` y el subrecurso `status`de su recurso `Cluster`.
+
+== Resumen de componentes
+
+Una visión general de los componentes y de cómo interactúan a alto nivel.
+
+image::FleetComponents.svg[Estática, 600]
