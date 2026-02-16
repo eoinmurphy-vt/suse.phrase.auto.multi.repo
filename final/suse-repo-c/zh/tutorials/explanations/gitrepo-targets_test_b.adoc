@@ -1,0 +1,199 @@
+= 映射到下游集群
+:revdate: 2025-04-30
+:page-revdate: {revdate}
+
+ifeval::["{product}" == "fleet"]
+https://ranchermanager.docs.rancher.com/integrations-in-rancher/fleet[{product_name} 在 Rancher 中，]用户可以像管理一个群集一样轻松管理群集。用户可以使用分组配置在集群间部署捆绑包，捆绑包可以由部署清单或任何其他 Kubernetes 资源组成。
+
+endif::[]
+
+ifeval::["{product}" == "continuous-delivery"]
+https://documentation.suse.com/cloudnative/rancher-manager/latest/en/integrations/fleet/overview.html[{product_name} 在 Rancher 中，]用户可以像管理一个群集一样轻松管理群集。用户可以使用分组配置在集群间部署捆绑包，捆绑包可以由部署清单或任何其他 Kubernetes 资源组成。
+endif::[]
+[IMPORTANT]
+====
+
+*仅限多集群*：
+{product_name} 如果没有指定目标，即使用单群集时，捆绑包的目标是默认群集组。
+====
+
+
+将`GitRepos` 部署到下游群集时，必须将群集映射到目标。
+
+== 确定目标
+
+`GitRepo` 的部署目标使用`spec.targets` 字段来匹配群集或群集组。YAML 规范如下。
+
+[,yaml]
+----
+kind: GitRepo
+apiVersion: fleet.cattle.io/v1alpha1
+metadata:
+  name: myrepo
+  namespace: clusters
+spec:
+  repo: https://github.com/rancher/fleet-examples
+  paths:
+  - simple
+
+  # Targets are evaluated in order and the first one to match is used. If
+  # no targets match then the evaluated cluster will not be deployed to.
+  targets:
+  # The name of target. This value is largely for display and logging.
+  # If not specified a default name of the format "target000" will be used
+  - name: prod
+    # A selector used to match clusters.  The structure is the standard
+    # metav1.LabelSelector format. If clusterGroupSelector or clusterGroup is specified,
+    # clusterSelector will be used only to further refine the selection after
+    # clusterGroupSelector and clusterGroup is evaluated.
+    clusterSelector:
+      matchLabels:
+        env: prod
+    # A selector used to match cluster groups.
+    clusterGroupSelector:
+      matchLabels:
+        region: us-east
+    # A specific clusterGroup by name that will be selected
+    clusterGroup: group1
+    # A specific cluster by name that will be selected
+    clusterName: cluster1
+----
+
+== 目标匹配
+
+与`GitRepo` 处于同一命名空间的所有群集和群集组将针对所有目标进行评估。
+如果任何目标与群集匹配，则`GitRepo` 将部署到下游群集。如果不匹配，则不会将`GitRepo` 部署到该群集。
+
+有三种匹配集群的方法。
+可以使用群集选择器、群集组选择器或明确的群集组名称。 所有标准都是相加的，因此最终的匹配结果是 "clusterSelector && clusterGroupSelector && clusterGroup"。 如果这三个值中有任何一个是默认值，它就会从标准中删除。 默认值为空或""。 必须认识到，选择器的值`{}` 意味着 "匹配一切"。
+
+[,yaml]
+----
+targets:
+  # Match everything
+  - clusterSelector: {}
+  # Selector ignored
+  - clusterSelector: null
+----
+
+您还可以按名称匹配群集：
+
+[,yaml]
+----
+targets:
+  - clusterName: fleetname
+----
+
+在 Rancher 中使用{product_name} 时，请确保输入`clusters.fleet.cattle.io` 资源的名称。
+
+== 默认目标
+
+如果没有为`GitRepo` 设置目标，则应用默认目标值。 默认目标值如下。
+
+[,yaml]
+----
+targets:
+- name: default
+  clusterGroup: default
+----
+
+这就意味着，如果你想设置一个非配置 GitRepos 将进入的默认位置，那么只需创建一个名为 default 的群集组并向其中添加群集即可。
+
+== 每个群集的定制
+
+[IMPORTANT]
+====
+
+`targets:` 在`GitRepo` 资源中选择要部署的群集。`fleet.yaml` 中的`targetCustomizations:` 只覆盖舵手值，不改变目标定位。
+====
+
+
+为了演示如何使用{product_name} 在不同集群间定制部署 Kubernetes 清单，我们将使用https://github.com/rancher/fleet-examples/blob/master/multi-cluster/helm/fleet.yaml[multi-cluster/helm/fleet.yaml 。]
+
+*情况：*用户有三个聚类，三个不同的标签：`env=dev`,`env=test`, 和`env=prod` 。用户希望在这些集群上部署带有后端数据库的前端应用程序。
+
+*预期行为：*
+
+* 部署到`dev` 集群后，数据库复制未启用。
+* 部署到`test` 集群后，数据库复制将启用。
+* 部署到`prod` 集群后，数据库复制已启用，负载平衡器服务也已公开。
+
+*{product_name} 的优势：*
+
+{product_name} 允许您按照以下步骤在所有群集上部署应用程序，而不是在每个群集上部署：
+
+. 部署 gitRepo`https://github.com/rancher/fleet-examples.git` 并指定路径`multi-cluster/helm` 。
+. 在`multi-cluster/helm` 下，Helm 图表将部署前端应用程序服务和后端数据库服务。
+. 以下规则将在`fleet.yaml` 中定义：
+
+----
+targetCustomizations:
+- name: dev
+  helm:
+    values:
+      replication: false
+  clusterSelector:
+    matchLabels:
+      env: dev
+
+- name: test
+  helm:
+    values:
+      replicas: 3
+  clusterSelector:
+    matchLabels:
+      env: test
+
+- name: prod
+  helm:
+    values:
+      serviceType: LoadBalancer
+      replicas: 3
+  clusterSelector:
+    matchLabels:
+      env: prod
+----
+
+*结果*
+
+{product_name} 将把带有自定义`values.yaml` 的 Helm 图表部署到不同的群集。
+
+NOTE: 配置管理不仅限于部署，还可扩展到一般配置管理。{product_name} 能够通过定制在任意集群中自动应用配置管理。
+
+=== 支持的定制
+
+* xref:reference/ref-crds.adoc#_bundledeploymentoptions[默认命名空间]
+* xref:reference/ref-crds.adoc#_bundledeploymentoptions[ForceSyncGeneration]
+* xref:reference/ref-crds.adoc#_bundledeploymentoptions[保留资源]
+* xref:reference/ref-crds.adoc#_bundledeploymentoptions[ServiceAccount]
+* xref:reference/ref-crds.adoc#_bundledeploymentoptions[目标命名空间]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.Atomic]
+* xref:reference/ref-crds.adoc#_helmoptions[舵手图]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.DisablePreProcess]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.Force]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.ReleaseName]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.Repo]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.TakeOwnership]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.TimeoutSeconds]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.ValuesFrom]
+* xref:reference/ref-crds.adoc#_helmoptions[舵值]
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.Version]
++
+
+[CAUTION]
+.重要信息
+====
+通过目标自定义覆盖 Helm 图表的版本将导致包含_所有_版本（即默认版本和自定义版本）的图表捆绑包，以适应所有群集。这反过来又意味着{product_name} 将部署更大的捆绑包。
++
+由于{product_name} 通过 etcd 存储捆绑包，这可能会在某些集群上导致捆绑包大小超过 etcd 配置的最大 blob 大小。更多详情，请参阅 https://github.com/rancher/fleet/issues/1650[本期]。
+====
+
+
+* xref:reference/ref-crds.adoc#_helmoptions[Helm.WaitForJobs]
+* xref:reference/ref-crds.adoc#_kustomizeoptions[Kustomize.Dir]
+* xref:reference/ref-crds.adoc#_yamloptions[YAML.Overlays]
+* xref:reference/ref-crds.adoc#_diffoptions[Diff.ComparePatches]
+
+== 其他实例
+
+使用原始 Kubernetes YAML、Helm 图表、Kustomize 以及三者组合的示例位于https://github.com/rancher/fleet-examples/[{product_name} Examples repo] 中。
