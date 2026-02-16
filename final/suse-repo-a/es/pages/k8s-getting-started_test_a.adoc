@@ -1,0 +1,50 @@
+= Primeros pasos
+:revdate: 2025-07-10
+:page-revdate: {revdate}
+:description: Observabilidad de SUSE
+
+¡Hola! Ya has integrado tus clústeres de Kubernetes u OpenShift y estás listo para empezar.
+
+Después de configurar su xref:/k8s-quick-start-guide.adoc[integración con Kubernetes], puede abrir el menú principal para explorar sus recursos. Por ejemplo, puede empezar por los Servicios.
+
+== Explore sus recursos Kubernetes
+
+image::k8s/k8s-quick-start-menu.png[Menú principal]
+
+Esto te lleva a la vista general de servicios que muestra todos los servicios que se ejecutan en tus clusters. Si hace clic en cualquiera de los otros elementos debajo de Kubernetes, irá a la página de resumen de ese tipo de recurso. Mostrará todos los recursos de ese tipo en todos los clusters y todos los espacios de nombres al principio.
+
+image::k8s/k8s-quick-start-services.png[Servicios]
+
+En la parte superior derecha, tiene la opción de filtrar su selección a un determinado clúster y/o espacio de nombres para ver los recursos de los que es responsable.
+
+En la parte inferior izquierda, encontrará dos entradas.
+
+. El selector de rango de tiempo. Selecciona el intervalo de tiempo para todas las métricas, registros y eventos que se ven en el producto.
+. El selector de topología-tiempo. Se utiliza para retroceder a un momento determinado y ver el estado exacto de los sistemas observados en ese momento.
+
+En este caso, filtro los servicios hasta 'sock-shop', que es una aplicación de demostración que utiliza diferentes microservicios escritos en diferentes lenguajes de programación y que utiliza diferentes formas de comunicación para actuar como un buen ejemplo para solucionar un problema.
+Si ahora hace clic en Topología, verá la topología de los componentes actualmente seleccionados (en este caso, los servicios de la tienda de calcetines).
+
+image::k8s/k8s-quick-start-service-topology.png[Topología de servicios]
+
+En la topología, se ven todos los recursos, en este caso los servicios.
+
+* Si haces clic en un componente (en este caso un servicio) te muestra los detalles de un servicio incluyendo las métricas más importantes, en el caso de un servicio, por ejemplo, la latencia, el rendimiento y la tasa de error. Junto a las métricas más importantes se muestra la salud del componente y se amplía si algo va mal.
+* Si hace clic en una relación, verá el detalle de la misma, incluidos todos los componentes que forman parte de ella. En el caso de un mapa de servicios, verá todos los componentes que intervienen en la comunicación entre servicios.
+Si desea abrir un componente para ver todos los detalles de ese recurso (por ejemplo, los detalles de este servicio un determinado servicio), puede hacer clic en el botón "Abrir componente" de un componente seleccionado (que luego verá en el panel de la derecha) o puede abrir el componente haciendo clic en el nombre del componente en la pestaña de la página de resumen.
+
+image::k8s/k8s-quick-start-service.png[Resumen del servicio]
+
+Tras abrir un recurso de Kubernetes, obtendrá una perspectiva Highlight que le mostrará todos los aspectos destacados de ese componente.
+
+. Los metadatos del componente
+. Las acciones disponibles sobre el componente, en el caso de un servicio, le da la posibilidad de mostrar la información de Estado y/o Configuración. Si desea ver los registros puede abrir los pods a través de los recursos relacionados que le dan acceso a los Logs.
+. Recursos relacionados. Esta sección muestra todos los recursos relacionados con este recurso, en este caso otros 2 servicios con los que se comunica y 1 pod que respalda este servicio.
+. La sección de monitores muestra todos los monitores aplicados a este Recurso incluyendo su estado en la topología-tiempo seleccionada.
+. La sección de métricas muestra todas las métricas importantes de este servicio. Las métricas incluyen el intervalo de tiempo de telemetría seleccionado.
+. La línea de tiempo de la salud de un servicio muestra la salud de este recurso a lo largo del tiempo.
+. Una línea de tiempo de eventos que muestra todos los eventos que ocurren en este servicio a lo largo del tiempo.
+
+Exploremos ahora un monitor activado haciendo clic en el de 'HTTP - 5xx error ratio'.
+
+image::k8s/k8s-quick-start-service-5xx-error-triggered-monitor.png[HTTP - 5xx error ratio triggered monitor]
