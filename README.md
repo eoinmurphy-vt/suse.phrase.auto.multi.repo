@@ -244,6 +244,6 @@ In Phrase Orchestrator, set up a `Workflow`.
 
 ### 📝 License
 
-This project is licensed under the Apache 2.0 License. © 2026 Vistatec.
+This project is licensed under the Apache 2.0 License. © Vistatec 2026.
 
 ---
