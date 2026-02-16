@@ -1,0 +1,111 @@
+= v0.13.0
+:revdate: 2025-07-23
+:page-revdate: {revdate}
+:page-date: 2025-07-23 15:09:14 +0000 UTC
+
+*2025-07-23 15:09:14 +0000 UTCにリリースされた`github-actions[bot]` 。*
+
+== 説明
+
+== 注目すべき変更点
+
+* HelmOpsとOCIストレージは完全にサポートされ、実験的なものではなくなりました。
+* 構築された画像のトレーサビリティの向上
+* より正確で軽量なリソースのステータス更新。
+
+== 追加
+
+* {product_name} は、ユーザー主導の新しいバンドル・スキャン方式をサポートし、柔軟性を高めた。以前のスキャン方法は引き続きサポートされる。0xavi0氏寄稿のxref:explanations/gitrepo-content.adoc#_alternative_scan_explicitly_defined_by_the_user[ドキュメント]、PRhttps://github.com/rancher/fleet/pull/3480[] #3480を参照のこと。
+* SSH を使って Git リポジトリを指す場合、{product_name} はデフォルトでホスト鍵をチェックし、不明なホストへの接続を拒否します。https://github.com/weyfonk[PR#3523] @weyfonk によるxref:/how-tos-for-users/gitrepo-add.adoc[既知のホスト] link:https://github.com/rancher/fleet/issues/3523[].
+* レプリカカウントがコントローラとエージェントの両方で設定可能になりました。xref:how-tos-for-operators/installation.adoc#_controller_and_agent_replicas[ドキュメントを]参照。
+  (寄稿：@p-se、PRhttps://github.com/rancher/fleet/pull/3457[] #3457）。
+* {product_name} では GitRepo ごとに個別のウェブフック・シークレットを使えるようになりました。xref:how-tos-for-users/webhook.adoc#option-2-configure-secret[ドキュメントを]参照。
+  (寄稿：@0xavi0、PRhttps://github.com/rancher/fleet/pull/3490[] #3490）。
+* {product_name} チャートが追加のラベルとアノテーションをサポートするようになりました。
+  (寄稿：@0xavi0、@p-se、PRshttps://github.com/rancher/fleet/pull/3531[、] #3531 https://github.com/rancher/fleet/pull/3664[]#3664）
+* エージェントリーダー選挙が設定可能にhttps://github.com/rancher/fleet/blob/main/charts/fleet/values.yaml#L135-L138[] 。
+  (寄稿：@p-se、PRhttps://github.com/rancher/fleet/pull/3463[] #3463）。
+* 古いサービスアカウントの移行は削除されました。(寄稿：@weyfonk、PRhttps://github.com/rancher/fleet/pull/3601[] #3601）。
+* {product_name} はバンドルステータスのリソースキーを計算しなくなりました。(寄稿：@manno、PRhttps://github.com/rancher/fleet/pull/3681[] #3681）。
+* {product_name} 新しい GitJob メトリクスを追加しました。xref:how-tos-for-users/observability.adoc#_metrics[ドキュメントを]参照。
+  (寄稿：@p-se、PRhttps://github.com/rancher/fleet/pull/3649[] #3649）。
+* エージェントは、ラベルを使用してクラスタをスキップできるようになりました。(寄稿者：@manno、PRhttps://github.com/rancher/fleet/pull/3744[] #3744）。
+
+=== ヘルムオプス
+
+HelmOps は実験的なものではなくなりました。`HelmOp` リソース（`HelmApp` から名称変更）がサポートされました：
+
+* Helmリポジトリのポーリング
+* 意味論的バージョニング制約（OCIチャートに関する https://github.com/rancher/fleet/issues/3862[この既知の問題については、]を参照してください。）
+* GitOpsバンドルとHelmOpsバンドルの名前の衝突を防ぐ
+* 厳密なTLSモードでHelmチャートをインストールする
+
+メトリクスとクラスタのステータスにHelmOpsのデータが含まれるようになりました。詳しくは、xref:how-tos-for-users/helm-ops.adoc[{product_name} のドキュメントを]参照。
+
+=== OCIストレージ
+
+OCIストレージはもはや実験的なものではなく、デフォルトで有効になっているが、バンドルはデフォルトでは使用しない。{product_name} をインストールする際、`extraEnv` で`OCI_STORAGE=false` を設定することで、無効にすることができます。
+
+また、ベストエフォート・ベースのガベージコレクションをサポートし、OCIストレージで使用されるシークレットのトレーサビリティも向上している。これには、{product_name} クローンをダウンストリームクラスタに転送するシークレットのラベル付けや、OCIアーティファクトの削除でエラーが発生した場合のイベントの生成などが含まれます。
+
+詳細はxref:how-tos-for-users/oci-storage.adoc[{product_name} のドキュメントを]参照。
+
+=== トレーサビリティの改善
+
+{product_name} がDockerマニフェストの証明性を証明するようになりました。
+(パッチ提供者：@thardeck、PRhttps://github.com/rancher/fleet/pull/3846[] #3846）。
+
+== バグ修正
+
+ステータス更新とライフサイクル処理が大幅に改善された：
+
+* GitRepo のステータスがより安定するようになりました。
+  (Contributed by @rbreddy、PRhttps://github.com/rancher/fleet/pull/3485[] #3485）。
+* GitRepo のステータス更新が最適化されました。
+  (PR https://github.com/rancher/fleet/pull/3604[#3604])
+* GitRepo の照合は更新を遅らせるようになり、急激な変更時のパフォーマンスが向上しました。
+  (PR https://github.com/rancher/fleet/pull/3558[#3558])
+* BundleDeploymentのステータス更新が最適化されました。
+  (PR https://github.com/rancher/fleet/pull/3887[#3887])
+* ドリフト検出は、空の差分リソースを更新しなくなりました。
+  (PR https://github.com/rancher/fleet/pull/3555[#3555])
+* {product_name} は、最新のラングラー準備完了検出の改良を使用しています。
+  (PR https://github.com/rancher/fleet/pull/3853[#3853])
+* ダウンストリームエージェントは、ステータスを再びアップストリームに正しく報告する。
+  (PR https://github.com/rancher/fleet/pull/3702[#3702])
+
+=== ライフサイクルの改善
+
+* クラスターイベントフィルタにより、不要なバンドル展開の作成を削減。
+  (PR https://github.com/rancher/fleet/pull/3796[#3796])
+* {product_name} 廃止されたバンドルデプロイが削除されるようになりました：
+** もはや対象外。
+** GitRepoまたはバンドルターゲットが変更されました。
+  (PRshttps://github.com/rancher/fleet/pull/3509[] #3509 andhttps://github.com/rancher/fleet/pull/3438[] #3438)
+
+=== CLIの改善
+
+* {product_name} CLI が git ジョブのエラーメッセージをより明確に表示するようになりました。
+  (PR https://github.com/rancher/fleet/pull/3559[#3559])
+* CLIは`controller-runtime` クライアントを使用する。
+  (PR https://github.com/rancher/fleet/pull/3670[#3670])
+
+=== コンフィギュレーションの改善
+
+* 設定更新がクラスタインポートを選択的にトリガするようになりました：
+** 関連するフィールドが変更された場合のみ。
+** 有効な`apiServerURL` 。
+  (PRshttps://github.com/rancher/fleet/pull/3551[] #3551 andhttps://github.com/rancher/fleet/pull/3837[] #3837)
+* `options.Helm`.
+  (PR https://github.com/rancher/fleet/pull/3567[#3567])
+* 空の URL で GitRepo を作成することはできなくなりました。
+  (PRhttps://github.com/rancher/fleet/pull/3582[] #3582)
+* BundleDeploymentsとHelmOpsの空の無視オプションが省略されるようになりました。
+  (PRhttps://github.com/rancher/fleet/pull/3842[] #3842)
+
+=== その他の改善点
+
+* チャートのダウンロードに失敗した場合、より有益なエラーが表示されます。
+  (PR https://github.com/rancher/fleet/pull/3593[#3593])
+* HelmチャートダウンロードのSSHキー認証が再び機能するようになった。
+  (PR https://github.com/rancher/fleet/pull/3670[#3670])
