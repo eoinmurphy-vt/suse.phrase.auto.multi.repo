@@ -108,15 +108,6 @@ Ensure your project follows this structure to support the scripts:
 
 ---
 
-### 👥 For Translators and Project Managers
-
-* Upload or commit new `.adoc` files to the **`source/`** folder.
-* Phrase TMS will automatically detect and import them from the **`processed/`** folder.
-* Once translations are complete, the **`translated/`** folder will be updated automatically.
-* Within a few minutes, the **`final/`** folder will contain the finalized AsciiDoc files, fully restored and ready for publication.
-
----
-
 ### ⚙️ Configuration & Admin Guide
 
 This workflow uses GitHub Actions Variables to manage repository connections and folder paths. This allows administrators to change configuration (like switching to a new target repository or changing folder names) without editing any code.
@@ -169,6 +160,17 @@ This variable stores the client‑specific repository configuration in JSON form
 | **schedule**     | How often this repo should be pulled (`hourly`, `daily`, etc.). |
 | **watch\_path**  | Path within the client repo to watch for changes.               |
 | **target\_path** | Path in this repository where processed files are saved.        |
+
+---
+
+### 👥 For Project Managers
+
+* Upload or commit new `.adoc` files to the **`watch\_path`** in the client repository.
+* The `Sync Changes from External Repos` action will push files to the **`source/`** folder of this repository.
+* Phrase TMS will automatically detect and import them from the **`processed/`** folder.
+* Once translations are complete, the **`translated/`** folder will be updated automatically.
+* Within a few minutes, the **`final/`** folder will contain the fully restored finalized AsciiDoc files.
+* The `Sync Changes to External Repos` action will push files to the client repositories and files are ready for publication.
 
 ---
 
