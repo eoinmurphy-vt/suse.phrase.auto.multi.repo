@@ -1,4 +1,4 @@
-= 建築
+= 変更された建築
 :revdate: 2025-04-30
 :page-revdate: {revdate}
 

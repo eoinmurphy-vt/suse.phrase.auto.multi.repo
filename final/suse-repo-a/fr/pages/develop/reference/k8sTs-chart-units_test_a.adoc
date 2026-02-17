@@ -1,4 +1,4 @@
-= Unités prises en charge pour les graphiques
+= MODIFIÉ Unités prises en charge pour les cartes marines
 :revdate: 2025-07-10
 :page-revdate: {revdate}
 :description: SUSE Observability

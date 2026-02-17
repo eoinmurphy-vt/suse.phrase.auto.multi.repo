@@ -1,0 +1,30 @@
+Starting preprocess: source/suse-repo-a/pages/develop/reference/k8sTs-chart-units_test_a.adoc
+✓ Decoded source/suse-repo-a/pages/develop/reference/k8sTs-chart-units_test_a.adoc as utf-8 (0.99)
+Saved processed file → processed/suse-repo-a/pages/develop/reference/k8sTs-chart-units_test_a.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 0
+
+Completed at 2026-02-16 22:35:55.716409
+Starting preprocess: source/suse-repo-b/reference/cli/fleet-controller/fleet-controller_test_a.adoc
+✓ Decoded source/suse-repo-b/reference/cli/fleet-controller/fleet-controller_test_a.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-b/reference/cli/fleet-controller/fleet-controller_test_a.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 1
+
+Completed at 2026-02-16 22:35:55.765603
+Starting preprocess: source/suse-repo-c/tutorials/explanations/architecture_test_a.adoc
+✓ Decoded source/suse-repo-c/tutorials/explanations/architecture_test_a.adoc as ascii (1.00)
+Saved processed file → processed/suse-repo-c/tutorials/explanations/architecture_test_a.adoc
+
+Summary:
+  ✅ Processed: 1
+  ⚠️ Encoding issues fixed: 0
+  ✅ Normalized files: 0
+
+Completed at 2026-02-16 22:35:55.814708

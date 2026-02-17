@@ -1,4 +1,4 @@
-= 建筑学
+= 改变后的建筑
 :revdate: 2025-04-30
 :page-revdate: {revdate}
 
