@@ -19,15 +19,14 @@ It ensures consistent formatting, automatic preprocessing before translation, an
 
 ---
 
-### ⚙️ Folder Structure
+### 🚦 Automation Status
 
-| Folder                  | Purpose                                                                        |
-| ----------------------- | ------------------------------------------------------------------------------ |
-| **`source/`**           | Original AsciiDoc files before translation                                     |
-| **`processed/`**        | Preprocessed UTF-8 files prepared for Phrase TMS                               |
-| **`phrase-incoming/`**  | Branch where Phrase TMS commits completed translations                         |
-| **`translated/`**       | Folder where GitHub commits completed translations from phrase-incoming branch |
-| **`final/`**            | Final postprocessed files restored to original AsciiDoc format                 |
+The badges above show the current automation state for each workflow action:
+
+| Status         | Meaning                                                                    |
+| -------------- | -------------------------------------------------------------------------- |
+| 🟢 **Passing** | The most recent preprocessing or postprocessing job completed successfully |
+| 🔴 **Failing** | The workflow encountered an error — check the *Actions* tab for logs       |
 
 ---
 
@@ -75,14 +74,15 @@ It ensures consistent formatting, automatic preprocessing before translation, an
 
 ---
 
-### 🚦 Automation Status
+### ⚙️ Folder Structure
 
-The badges above show the current automation state for each workflow action:
-
-| Status         | Meaning                                                                    |
-| -------------- | -------------------------------------------------------------------------- |
-| 🟢 **Passing** | The most recent preprocessing or postprocessing job completed successfully |
-| 🔴 **Failing** | The workflow encountered an error — check the *Actions* tab for logs       |
+| Folder                  | Purpose                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------ |
+| **`source/`**           | Original AsciiDoc files before translation                                     |
+| **`processed/`**        | Preprocessed UTF-8 files prepared for Phrase TMS                               |
+| **`phrase-incoming/`**  | Branch where Phrase TMS commits completed translations                         |
+| **`translated/`**       | Folder where GitHub commits completed translations from phrase-incoming branch |
+| **`final/`**            | Final postprocessed files restored to original AsciiDoc format                 |
 
 ---
 
@@ -242,6 +242,6 @@ In Phrase Orchestrator, set up a `Workflow`.
 
 ### 📝 License
 
-This project is licensed under the Apache 2.0 License. © Vistatec 2026.
+This project is licensed under the Apache 2.0 License. © 2026 Vistatec, Ltd.
 
 ---
