@@ -177,7 +177,7 @@ This variable stores the client‑specific repository configuration in JSON form
 ### ⚠️ Important Limitations
 
    While most settings are configurable via the Variables UI, specific GitHub architecture limitations require the following to be changed manually in the YML files if updated:
-   * Schedules: The sync frequency (e.g., */15 * * * *) must be edited in .github/workflows/sync-from-repo1.yml.
+   * Schedules: The sync frequency (e.g., */15 * * * *) must be edited in .github/workflows/sync-from-client-repo.yml.
    * Trigger Paths: If you rename the source or translated folders, you must manually update the paths: filters in preprocess.yml and postprocess.yml so the workflows trigger correctly.
 
 ---
