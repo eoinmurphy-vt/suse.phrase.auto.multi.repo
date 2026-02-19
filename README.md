@@ -137,7 +137,7 @@ If these variables are not set, the workflow will use the Default Values listed 
 
 **Example: `SUSE_CLIENT_CONFIGURATION`**
 
-This variable stores the client‑specific repository configuration in JSON format:
+This variable contains the client‑specific repository configuration in JSON format. Each JSON object represents a single configuration, as shown in the example below. Additional JSON objects can be added to allow the system to connect to multiple repositories and/or directory locations.
 
 ```json
 {
